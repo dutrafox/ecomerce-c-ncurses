@@ -1,0 +1,8 @@
+200,Bolero,PP,59.9,50,preto,feminino
+201,Vestido,M,89.9,10,roxo,feminino
+202,Blusa,XG,54.98,5,vermelho,feminino
+203,Camisa Polo listrada,G,49.50,10,azul,masculino
+204,Calca,G,99.9,8,branca,masculino
+205,Regata manga paet,P,59.9,4,cinza,unissex
+206,Camisa do Gremio,G,199.9,6,azul,unissex
+207,Camisa do Inter,G,199.9,5,vermelha,unissex

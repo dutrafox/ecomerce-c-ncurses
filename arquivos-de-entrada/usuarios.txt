@@ -1,0 +1,7 @@
+1,Alan Turing,cliente
+2,Edsger Dijkstra,cliente
+3,C.A.R. Hoare, cliente
+4,Alonzo Church, cliente
+5,John Von Neumann, gerente
+6,Ada Lovelace, cliente
+7,Donal Knuth,cliente

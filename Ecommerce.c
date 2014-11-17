@@ -2,32 +2,30 @@
 #include <stdlib.h>
 #include <math.h>
 
-typedef struct{
-    int altura;
-    int largura;
-    int profundidade;
-} dimensao;
+typedef struct Dimensao{
+	int altura;
+	int largura;
+	int comprimento;
+} Dimensao;
 
-typedef struct{
-    int codigo;
-    char descricao[31];
-    dimensao dimens_eletro;
-    float preco;
-    int estoque;
-    char cor[10];
-} eletro;
+typedef struct Eletro{
+	int codigo;
+	char descricao[31];
+	struct Dimensao dimensEletro;
+	float preco;
+	int estoque;
+	char cor[10];
+} Eletro;
 
-typedef struct{
-    int codigo;
-    char descricao[31];
-    char tamanho [3];
-    float preco;
-    int estoque;
-    char cor[10];
-} vestuario;
+typedef struct Vestuario{
+	int codigo;
+	char descricao[31];
+	char tamanho[3];
+	float preco;
+	int estoque;
+	char cor[10];
+	char genero[10];
+} Vestuario;
 
 int main(){
-
-
 }
-

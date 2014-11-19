@@ -44,23 +44,63 @@ typedef struct Usuario{
 } USUARIO;
 
 //Prototipos das Funções
+void lerUsuariosTexto(char arq[15]);
 
 //Variavel globais
 USUARIO usuarios[200]; //O q vc acha? Quantos usuarios o maximo?
 
 //Funcao main
 int main(){
+	lerUsuariosTexto("arquivos-de-entrada//usuarios.txt");
 }
 
 //Funcao lerUsuariosTexto
-int lerUsuariosTexto(char arq[15]){
+//RODRIGO COMENTEI ESTA FUNÇÃO PQ ELA DEVERIA FUNCIONAR SE O ARQUIVO USUARIOS.TXT ESTIVESSE COMO NA ESPECIFICAÇAO, MAS ELE NÃO ESTA ENTÃO POSTEI UMA MENSAGEM NO FORUM
+/*
+void lerUsuariosTexto(char arq[15]){
+
 	FILE *fp;
 	char linha[140];//Valor 139 escolhido por ser a soma do tamanho maximo de todos os dados do usuario
 	if((fp = fopen(arq, "r")) == NULL){
 		printf("Erro ao abrir o arquivo %s\n", arq);
 		exit(1);
 	}
-	while(fgets(linha,MAX,fp) != NULL){
-		
+	int i = 0;
+	while(fgets(linha,140,fp) != NULL){
+		int j = 0;
+		char *pch;
+		pch = strtok(linha," ,");
+		while(pch != NULL){
+			switch(j){
+				case 0:
+					usuarios[i].codigo = atoi(pch);
+					break;
+				case 1:
+					strcpy(usuarios[i].nome, pch);
+					break;
+				case 2:
+					strcpy(usuarios[i].ultimoSobrenome, pch);
+					break;
+				case 3:
+					strcpy(usuarios[i].logradouro, pch);
+					break;
+				case 4:
+					strcpy(usuarios[i].numero, pch);
+					break;
+				case 5:
+					strcpy(usuarios[i].complemento, pch);
+					break;
+				case 6:
+					usuarios[i].cep = atoi(pch);
+					break;
+				case 7:
+					strcpy(usuarios[i].categoria, pch);
+			}
+			printf("%s\n", pch);
+			pch = strtok(NULL, " ,");
+			j++;
+		}
+		i++;
 	}
 }
+*/

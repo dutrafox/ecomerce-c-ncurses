@@ -43,64 +43,35 @@ typedef struct Usuario{
 	char categoria[8];
 } USUARIO;
 
-//Prototipos das FunÃ§Ãµes
-void lerUsuariosTexto(char arq[15]);
+//Prototipos das Funções
+int CarrinhoVest(int /*número do cadastro*/, int /*outro parametro*/ );
+int CarrinhoEletro(/*algum parâmetro que eu ainda não pensei*/);
+void MenuCliente(int opcao); //Menu do cliente
+void MenuGerente(int opçao);//Menu do gerente(assumindo que a gente vai por o main todo em funções)
+
 
 //Variavel globais
-USUARIO usuarios[200]; //O q vc acha? Quantos usuarios o maximo?
+USUARIO usuarios[50]; //mudei para 50 pois nas especificações ele diz que poderão se conectar 50 usuários simultâneos(que ainda não fizeram check out)
 
 //Funcao main
 int main(){
-	lerUsuariosTexto("arquivos-de-entrada//usuarios.txt");
 }
 
 //Funcao lerUsuariosTexto
-//RODRIGO COMENTEI ESTA FUNÃ‡ÃƒO PQ ELA DEVERIA FUNCIONAR SE O ARQUIVO USUARIOS.TXT ESTIVESSE COMO NA ESPECIFICAÃ‡AO, MAS ELE NÃƒO ESTA ENTÃƒO POSTEI UMA MENSAGEM NO FORUM
-/*
-void lerUsuariosTexto(char arq[15]){
-
+int lerUsuariosTexto(char arq[15]){
 	FILE *fp;
 	char linha[140];//Valor 139 escolhido por ser a soma do tamanho maximo de todos os dados do usuario
 	if((fp = fopen(arq, "r")) == NULL){
 		printf("Erro ao abrir o arquivo %s\n", arq);
 		exit(1);
 	}
-	int i = 0;
-	while(fgets(linha,140,fp) != NULL){
-		int j = 0;
-		char *pch;
-		pch = strtok(linha," ,");
-		while(pch != NULL){
-			switch(j){
-				case 0:
-					usuarios[i].codigo = atoi(pch);
-					break;
-				case 1:
-					strcpy(usuarios[i].nome, pch);
-					break;
-				case 2:
-					strcpy(usuarios[i].ultimoSobrenome, pch);
-					break;
-				case 3:
-					strcpy(usuarios[i].logradouro, pch);
-					break;
-				case 4:
-					strcpy(usuarios[i].numero, pch);
-					break;
-				case 5:
-					strcpy(usuarios[i].complemento, pch);
-					break;
-				case 6:
-					usuarios[i].cep = atoi(pch);
-					break;
-				case 7:
-					strcpy(usuarios[i].categoria, pch);
-			}
-			printf("%s\n", pch);
-			pch = strtok(NULL, " ,");
-			j++;
-		}
-		i++;
+	while(fgets(linha,MAX,fp) != NULL){
+
 	}
 }
-*/
+
+//não sei se tu percebeu, mas ele pede pra salvar o log de compras com data e hora, então a gente vai ter que usar clock
+
+
+
+

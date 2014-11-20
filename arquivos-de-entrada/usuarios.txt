@@ -1,7 +1,7 @@
-1,Alan Turing,cliente
-2,Edsger Dijkstra,cliente
-3,C.A.R. Hoare, cliente
-4,Alonzo Church, cliente
-5,John Von Neumann, gerente
-6,Ada Lovelace, cliente
-7,Donal Knuth,cliente
+1,Alan,Turing,Rua Dona Mariana,70,Ap 205,96010450,cliente
+2,Edsger,Av Bento Gonçalves,340,,97501510,Dijkstra,cliente
+3,C.A.R.,Hoare,Rua Gomes Carneiro,1,UFPel,96010432,cliente
+4,Alonzo,Church,Rua Treze de Maio,4007,Apto 301,97500602,cliente
+5,John,Neumann,Av Fernando Osorio,4567,,96855065,gerente
+6,Ada,Lovelace,Rod. BR 392,45,Km 70,96010000,cliente
+7,Donal,Knuth,Estrada São José do Norte,69,Km 2,98700500,cliente

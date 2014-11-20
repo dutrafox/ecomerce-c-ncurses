@@ -13,10 +13,7 @@ Implementação gráfica em modo texto podemos fazer com a NCURSES
 1) Acesse o terminal como root
 su
 
-2) De as permisoes para o arquivo instalarNCURSES.sh
-chmod 777 instalarNCURSES.sh
-
-3) Rode o script instalarNCURSES.sh
+2) Rode o script instalarNCURSES.sh
 ./instalarNCURSES.sh
 
 #################################

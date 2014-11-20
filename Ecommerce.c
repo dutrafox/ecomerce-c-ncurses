@@ -62,6 +62,12 @@ USUARIO usuarios[50]; //Sim 50 e o maximo de logados, mas aqui vamos armazenar t
 //Funcao main
 int main(){
 	lerUsuariosTexto("arquivos-de-entrada//usuarios.txt");
+	initscr();
+
+	start_color();
+
+	    refresh();    //Atualiza a tela
+	    getch();      //Fica esperando que o usuário aperte alguma tecla
 }
 
 //Funçao para ler os usuarios do arquivo em modo texto e gravar em um vetor de usuarios

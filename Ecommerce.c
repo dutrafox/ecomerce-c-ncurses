@@ -49,31 +49,67 @@ typedef struct Usuario{
 	struct Endereco endereco;
 } USUARIO;
 
-//Prototipos das Funções
-int CarrinhoVest(int /*número do cadastro*/, int /*outro parametro*/ );
-int CarrinhoEletro(/*algum parâmetro que eu ainda não pensei*/);
-void MenuCliente(int opcao); //Menu do cliente
-void MenuGerente(int opçao);//Menu do gerente(assumindo que a gente vai por o main todo em funções)
-
+//Prototipos das Funcoes
+int carrinhoVest(int /*numero do cadastro*/, int /*outro parametro*/ );
+int carrinhoEletro(/*algum parametro que eu ainda não pensei*/);
+void menuCliente(int opcao); //Menu do cliente
+void menuGerente(int opcao);//Menu do gerente(assumindo que a gente vai por o main todo em funcoes)
+void lerUsuariosTexto(char arq[15]);
 
 //Variavel globais
-USUARIO usuarios[50]; //Sim 50 é maximo de logados, mas aqui vamos armazenar todos os usuarios, independente de estar logado ou não, por isto acho que não podemos assumir que teremos apenas 50 usuários, bom acho então que podemos usar alocação dinamica, pois o vetor não precisa ter tamanho com alocação dinâmica
+USUARIO usuarios[50]; //Sim 50 e o maximo de logados, mas aqui vamos armazenar todos os usuarios, independente de estar logado ou nao, por isto acho que nao podemos assumir que teremos apenas 50 usuurios, bom acho entao que podemos usar alocacao dinamica, pois o vetor nao precisa ter tamanho com alocacao dinamica
 
 //Funcao main
 int main(){
+	lerUsuariosTexto("arquivos-de-entrada//usuarios.txt");
 }
 
-//Funcao lerUsuariosTexto
-int lerUsuariosTexto(char arq[15]){
+//Funçao para ler os usuarios do arquivo em modo texto e gravar em um vetor de usuarios
+void lerUsuariosTexto(char arq[15]){
+
 	FILE *fp;
 	char linha[140];//Valor 140 escolhido por ser a soma do tamanho maximo de todos os dados do usuario
 	if((fp = fopen(arq, "r")) == NULL){
 		printf("Erro ao abrir o arquivo %s\n", arq);
 		exit(1);
 	}
-	while(fgets(linha,MAX,fp) != NULL){
-
+	int i = 0;
+	while(fgets(linha,140,fp) != NULL){
+		int j = 0;
+		char *pch;
+		pch = strtok(linha,",");
+		while(pch != NULL){
+			switch(j){
+				case 0:
+					usuarios[i].codigo = atoi(pch);
+					break;
+				case 1:
+					strcpy(usuarios[i].nome, pch);
+					break;
+				case 2:
+					strcpy(usuarios[i].ultimoSobrenome, pch);
+					break;
+				case 3:
+					strcpy(usuarios[i].endereco.logradouro, pch);
+					break;
+				case 4:
+					strcpy(usuarios[i].endereco.numero, pch);
+					break;
+				case 5:
+					strcpy(usuarios[i].endereco.complemento, pch);
+					break;
+				case 6:
+					usuarios[i].endereco.cep = atoi(pch);
+					break;
+				case 7:
+					strcpy(usuarios[i].categoria, pch);
+			}
+			printf("%s\n", pch);
+			pch = strtok(NULL, ",");
+			j++;
+		}
+		i++;
 	}
 }
 
-//Não tinha percebido mas tranquilo
+//Nao tinha percebido mas tranquilo

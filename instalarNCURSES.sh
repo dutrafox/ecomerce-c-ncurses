@@ -13,4 +13,6 @@ make
 #Instalar
 echo "### Instalando ###"
 make install
-#
+#Compilar Ecommerce
+echo "### Compilando Ecommerce ###"
+gcc ../Ecommerce.c -o ../Ecommerce -lncurses

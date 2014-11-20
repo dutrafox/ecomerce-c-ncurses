@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include <ncurses.h>
+#include <curses.h>
 
 //Estrutura Dimensao
 typedef struct Dimensao{
@@ -51,11 +51,10 @@ typedef struct Usuario{
 
 //Prototipos das Funcoes
 int carrinhoVest(int /*numero do cadastro*/, int /*outro parametro*/ );
-int carrinhoEletro(/*algum parametro que eu ainda nao pensei*/);
+int carrinhoEletro(/*algum parametro que eu ainda não pensei*/);
 void menuCliente(int opcao); //Menu do cliente
 void menuGerente(int opcao);//Menu do gerente(assumindo que a gente vai por o main todo em funcoes)
-void lerUsuariosTexto(char arq[15]);//Le dados do usuario de um arquivo de texto
-WINDOW *criarJanela(int linhas, int colunas, int inicioy, int iniciox);
+void lerUsuariosTexto(char arq[15]);
 
 //Variavel globais
 USUARIO usuarios[50]; //Sim 50 e o maximo de logados, mas aqui vamos armazenar todos os usuarios, independente de estar logado ou nao, por isto acho que nao podemos assumir que teremos apenas 50 usuurios, bom acho entao que podemos usar alocacao dinamica, pois o vetor nao precisa ter tamanho com alocacao dinamica
@@ -63,38 +62,12 @@ USUARIO usuarios[50]; //Sim 50 e o maximo de logados, mas aqui vamos armazenar t
 //Funcao main
 int main(){
 	lerUsuariosTexto("arquivos-de-entrada//usuarios.txt");
-
 	initscr();
+
 	start_color();
 
-	init_pair(1, COLOR_WHITE, COLOR_BLUE);
-	init_pair(2, COLOR_BLACK, COLOR_WHITE);
-	init_pair(3, COLOR_BLUE, COLOR_WHITE);
-
-	bkgd(COLOR_PAIR(1));
-	
-	move(0, (COLS-8)/2);
-	printw("ECOMMERCE");	
-	cbreak();
-
-	WINDOW *janelaInicial;
-
-	refresh();
-	janelaInicial = criarJanela(LINES-1, COLS, 1, 0);
-
-	refresh();
-	getch();
-	endwin(); 
-}
-
-WINDOW *criarJanela(int linhas, int colunas, int inicioy, int iniciox){
-	WINDOW *janelaLocal;
-
-	janelaLocal = newwin(linhas, colunas, inicioy, iniciox);
-	box(janelaLocal, 0 , 0);
-	wrefresh(janelaLocal);
-
-	return janelaLocal;
+	    refresh();    //Atualiza a tela
+	    getch();      //Fica esperando que o usuário aperte alguma tecla
 }
 
 //Funçao para ler os usuarios do arquivo em modo texto e gravar em um vetor de usuarios
@@ -137,9 +110,12 @@ void lerUsuariosTexto(char arq[15]){
 				case 7:
 					strcpy(usuarios[i].categoria, pch);
 			}
+			printf("%s\n", pch);
 			pch = strtok(NULL, ",");
 			j++;
 		}
 		i++;
 	}
 }
+
+//Nao tinha percebido mas tranquilo

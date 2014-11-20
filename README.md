@@ -21,4 +21,4 @@ su
 #################################
 
 Para funcionar o procedimento de instalação da NCURSES já deve ter sido feito
-Comando para compilação: gcc -static -O2 -lm -lncurses Ecommerce.c -o Ecommerce
+Comando para compilação: gcc Ecommerce.c -o Ecommerce -lncurses

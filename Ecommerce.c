@@ -45,15 +45,24 @@ typedef struct Endereco{
 
 //Estrutura Usuarios
 typedef struct Usuario{
-	int codigo;
-	char nome[16];
-	char ultimoSobrenome[16];
-	char categoria[8];
-	struct Endereco endereco;
+	int CodigoCliente;
+	char NomeCliente[16];
+	char SobrenomeCliente[16];
+	char Categoria[8];
+	struct Endereco endereco
 } USUARIO;
 
+//Estrutura Carrinho
+typedef struct Carrinho{
+    int CodigoCliente;
+    int CodigoProduto;
+    int Aberto;
+    char CategoriaProduto[10];
+} CARRINHO;
+
+
 //Prototipos das Funcoes
-int carrinhoVest(int /*numero do cadastro*/, int /*outro parametro*/ );
+int carrinhoVest(int *codigo, int /*outro parametro*/ );
 int carrinhoEletro(/*algum parametro que eu ainda nao pensei*/);
 MENU *criarMenu(char *opcoes[]); //Recebe como parametro as opcoes e exibe o menu
 void lerUsuariosTexto(char arq[15]);//Le dados do usuario de um arquivo de texto
@@ -62,9 +71,24 @@ void definirMenu(WINDOW *janela, MENU *menu, int linhas, int colunas);
 void destruirJanela(WINDOW *janelaLocal);
 void inicializaNCURSES();
 void menuCadastrado();
+void MenuAbrir(int *NumeroCadastro);//abre um log já existente
+void MenuGerente(int opcao);
+void MenuCliente(int opcao);
+void MenuPesquisar(int opçao, char /*parametro da pesquisa*/);//pesquisa item por tipo e nome
+void MenuRelatorios(/*parametros a definir*/);//emite relátorio de várias coisas
+void MenuTrocaUsuario(WINDOW *janela);//é aquela funçao besta, tá pronta já
+void MenuSair(); //esse fica sem parametros mesmo
+void MenuExcluir(); //faltam parametros ainda para excluir produtos do carrinho
+void MenuVisualizar(); //listar o carrinho do cliente
+void MenuSuspender();//apenas salvar o carrinho com fwrite
+void MenuFechar(); //salvar e fechar o carrinho
+void MenuCancelar(int CodigoCliente, ); //cancelar 1 item do carrinho
+void MenuInserir();//inserir com o codigo, um item no carrinho
+
 
 //Variavel globais
 USUARIO usuarios[50];
+CARRINHO carrinhos[20];
 
 //Funcao main
 int main(){
@@ -72,7 +96,7 @@ int main(){
 
 	inicializaNCURSES();
 	mvprintw(0, (COLS-8)/2,"ECOMMERCE");
-	noecho(); 
+	noecho();
 
 	WINDOW *janelaMenuCadastrado;
 	attron(COLOR_PAIR(4));
@@ -85,7 +109,7 @@ int main(){
 	MENU *menuCadastrado;
 	menuCadastrado = criarMenu(opcoes);
 	definirMenu(janelaMenuCadastrado, menuCadastrado, 1, 2);
-	
+
 	post_menu(menuCadastrado, 2, 5);
 	wrefresh(janelaMenuCadastrado);
 	int c;
@@ -100,13 +124,13 @@ int main(){
 				break;
 		}
 		wrefresh(janelaMenuCadastrado);
-	}	
+	}
 
 	endwin();
 }
 
 void menuCadastrado(){
-	
+
 }
 
 void inicializaNCURSES(){
@@ -119,7 +143,7 @@ void inicializaNCURSES(){
 	init_pair(4, COLOR_WHITE, COLOR_BLACK);
 
 	bkgd(COLOR_PAIR(1));
-	keypad(stdscr, TRUE);	
+	keypad(stdscr, TRUE);
 	cbreak();
 }
 
@@ -136,10 +160,10 @@ MENU *criarMenu(char *opcoes[]){
 	MENU *menu;
 	int nOpcoes, i;
 	ITEM *item;
-	
+
 	nOpcoes = ARRAY_SIZE(*opcoes);
-	itens = (ITEM **)calloc(nOpcoes + 1, sizeof(ITEM *));	
-		
+	itens = (ITEM **)calloc(nOpcoes + 1, sizeof(ITEM *));
+
 	for(i = 0; i < nOpcoes; i++){
 		itens[i] = new_item(opcoes[i], opcoes[i]);
 	}
@@ -166,6 +190,9 @@ void destruirJanela(WINDOW *janelaLocal){
 
 //Funçao para ler os usuarios do arquivo em modo texto e gravar em um vetor de usuarios
 void lerUsuariosTexto(char arq[15]){
+
+
+int ()
 
 	FILE *fp;
 	char linha[140];//Valor 140 escolhido por ser a soma do tamanho maximo de todos os dados do usuario
@@ -209,4 +236,77 @@ void lerUsuariosTexto(char arq[15]){
 		}
 		i++;
 	}
+}
+void MenuAbrir(int *NumeroCadastro){
+        FILE *fp;
+	if((fp = fopen("carrinho_usuario.sav", "rb")) == NULL){
+		printf("Erro ao abrir o arquivo %s\n", arq);
+		exit(1);
+	}
+	//deixei o resto por fazer porque precisa da estrutura do carrinho de compras
+}
+
+void MenuGerente(int opçao) { //menu de acesso exclusivo do gerente
+
+    switch(opçao){
+
+        case '1':
+            MenuPesquisar(int opçao, char /*parametro da pesquisa*/);
+            break;
+        case '2':
+            MenuRelatorios();
+            break;
+        case '3':
+            MenuTrocaUsuario(WINDOW *janela);
+            break;
+        case '4':
+           MenuSair();
+           break;
+        }
+
+}
+
+void MenuCliente(int opcao){ //menu de acesso do cliente
+    switch(opcao){
+
+        case '1':
+            MenuAbrir(int *NumeroCadastro);
+            break;
+        case '2':
+            MenuPesquisar(int opçao, char /*parametro da pesquisa*/);
+            break;
+        case '3':
+            MenuInserir();
+            break;
+        case '4':
+            MenuExcluir();
+            break;
+        case '5':
+            MenuVisualizar();
+            break;
+        case '6':
+            MenuSuspender()
+            break;
+        case '7':
+            MenuFechar();
+            break;
+        case '8':
+            MenuCancelar();
+        case '9':
+            MenuTrocaUsuario(WINDOW *janela);
+            break;
+        case '10':
+            MenuSair();
+            break;
+    }
+}
+
+void MenuTrocaUsuario(WINDOW *janela){
+    destruirJanela(janela);
+}
+
+void MenuSair(){
+    printw("Deseja realmente sair?\n");
+        if();//completar o if com parametros da interface
+        exit(0);
 }

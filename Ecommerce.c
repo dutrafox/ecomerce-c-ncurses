@@ -233,7 +233,7 @@ void menuCadastrado(){
 		wrefresh(janelaMenuCadastrado->janela);
 	}
 
-//ISSO E O CODIGO DA FUNCAO MENUSAIR, AMS QUANDO EU COLOCO LA DA SEGMENTATION FAULT
+//ISSO E O CODIGO DA FUNCAO MENUSAIR, MAS QUANDO EU COLOCO LA DA SEGMENTATION FAULT
 //INICIO MENUSAIR
 	JANELA *janelaFundo;
 	refresh();
@@ -278,11 +278,10 @@ void menuCadastrado(){
 					j--;
 				}
 				break;
-			case 10: // 10 = Tecla ENTER
+			case 10: // 10 = Tecla ENTER	
 				if(j == 0){
 					
 				}else{
-					
 				}
 		}
 		wrefresh(janelaMenuSair->janela);

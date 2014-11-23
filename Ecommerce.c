@@ -106,8 +106,6 @@ int main(){
 	mvprintw(0, (COLS-8)/2,"ECOMMERCE");
 	mvprintw(LINES-2, COLS-27, "Pressione ESC para sair");
 	noecho();
-
-	attron(COLOR_PAIR(4));	
 	
 	menuCadastrado();
 	
@@ -141,7 +139,7 @@ MENU *criarMenu(char *opcoes[]){
 	MENU *menu;
 	int nOpcoes, i;
 	ITEM *item;
-	
+
 	nOpcoes = ARRAY_SIZE(*opcoes);
 	itens = (ITEM **)calloc(nOpcoes + 1, sizeof(ITEM *));	
 		
@@ -185,6 +183,8 @@ void destruirJanela(JANELA *janelaLocal){
 }
 
 void menuCadastrado(){
+	attron(COLOR_PAIR(4));
+
 	JANELA *janelaCadastrado;
 	refresh();
 	janelaCadastrado = criarJanela(6, 40, (LINES-6)/2, (COLS-40)/2);
@@ -195,16 +195,16 @@ void menuCadastrado(){
 	refresh();
 	janelaMenuCadastrado = criarJanela(1, 9, janelaCadastrado->inicioy+(janelaCadastrado->linhas/2), janelaCadastrado->iniciox+((janelaCadastrado->colunas-11)/2));
 	
-	char *opcoes[] = {"SIM", "NAO"};
+	char *opcoesMenuCadastrado[] = {"SIM", "NAO"};
 	MENU *menuCadastrado;
-	menuCadastrado = criarMenu(opcoes);
+	menuCadastrado = criarMenu(opcoesMenuCadastrado);
 	definirMenu(janelaMenuCadastrado->janela, menuCadastrado, 1, 2);
 	
 	post_menu(menuCadastrado);
 	wrefresh(janelaMenuCadastrado->janela);
 	int c, i=0;
 
-	while((c = getch()) != 27){
+	while((c = getch()) != 27){ //27 = Tecla ESC
 		switch(c){
 			case KEY_LEFT:
 				menu_driver(menuCadastrado, REQ_LEFT_ITEM);
@@ -214,13 +214,80 @@ void menuCadastrado(){
 				menu_driver(menuCadastrado, REQ_RIGHT_ITEM);
 				i++;
 				break;
-			case 10:
-				if(i == 0){
+			case 9: // 9 = Tecla TAB
+				if(i < 1){
+					menu_driver(menuCadastrado, REQ_NEXT_MATCH);
+					i++;
 				}else{
+					menu_driver(menuCadastrado, REQ_PREV_MATCH);
+					i--;
+				}
+				break;
+			case 10: // 10 = Tecla ENTER
+				if(i == 0){
+					
+				}else{
+					
 				}
 		}
 		wrefresh(janelaMenuCadastrado->janela);
 	}
+
+//ISSO E O CODIGO DA FUNCAO MENUSAIR, AMS QUANDO EU COLOCO LA DA SEGMENTATION FAULT
+//INICIO MENUSAIR
+	JANELA *janelaFundo;
+	refresh();
+	janelaFundo = criarJanela(LINES-1, COLS, 1, 0);
+	wrefresh(janelaFundo->janela);
+
+	JANELA *janelaSair;
+	refresh();
+	janelaSair = criarJanela(6, 40, (LINES-6)/2, (COLS-40)/2);
+	mvwprintw(janelaSair->janela, 1, (janelaSair->colunas-22)/2, "Deseja realmente sair?");
+	wrefresh(janelaSair->janela);
+
+	JANELA *janelaMenuSair;
+	refresh();
+	janelaMenuSair = criarJanela(1, 9, janelaSair->inicioy+(janelaSair->linhas/2), janelaSair->iniciox+((janelaSair->colunas-11)/2));
+	
+	char *opcoesMenuSair[] = {"SIM", "NAO"};
+	MENU *menuSair;
+	menuSair = criarMenu(opcoesMenuSair);
+	definirMenu(janelaMenuSair->janela, menuSair, 1, 2);
+	
+	post_menu(menuSair);
+	wrefresh(janelaMenuSair->janela);
+	int d, j=0;
+
+	while(d = getch()){
+		switch(d){
+			case KEY_LEFT:
+				menu_driver(menuSair, REQ_LEFT_ITEM);
+				j--;
+				break;
+			case KEY_RIGHT:
+				menu_driver(menuSair, REQ_RIGHT_ITEM);
+				j++;
+				break;
+			case 9: // 9 = Tecla TAB
+				if(j < 1){
+					menu_driver(menuSair, REQ_NEXT_MATCH);
+					j++;
+				}else{
+					menu_driver(menuSair, REQ_PREV_MATCH);
+					j--;
+				}
+				break;
+			case 10: // 10 = Tecla ENTER
+				if(j == 0){
+					
+				}else{
+					
+				}
+		}
+		wrefresh(janelaMenuSair->janela);
+	}
+//FIM MENUSAIR
 }
 
 //Funçao para ler os usuarios do arquivo em modo texto e gravar em um vetor de usuarios
@@ -343,8 +410,5 @@ void MenuTrocaUsuario(JANELA *janela){
 }
 
 void MenuSair(){
-    printw("Deseja realmente sair?");
-        if(true){
-	}//completar o if com parametros da interface
-        exit(0);
+
 }

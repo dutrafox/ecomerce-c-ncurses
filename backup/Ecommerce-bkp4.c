@@ -68,7 +68,7 @@ USUARIO usuarios[50];
 
 //Funcao main
 int main(){
-	lerUsuariosTexto("arquivos-de-entrada//usuarios.txt");
+	//lerUsuariosTexto("arquivos-de-entrada//usuarios.txt");
 
 	inicializaNCURSES();
 	mvprintw(0, (COLS-8)/2,"ECOMMERCE");
@@ -86,7 +86,7 @@ int main(){
 	menuCadastrado = criarMenu(opcoes);
 	definirMenu(janelaMenuCadastrado, menuCadastrado, 1, 2);
 	
-	post_menu(menuCadastrado, 2, 5);
+	post_menu(menuCadastrado);
 	wrefresh(janelaMenuCadastrado);
 	int c;
 

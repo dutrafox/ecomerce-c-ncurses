@@ -45,20 +45,20 @@ typedef struct Vestuario{
 
 //Estrutura Endereco
 typedef struct Endereco{
-	char logradouro[51];
-	char numero[8]; //Usei char para numeros como 105A ou 1005-1
-	char complemento[21];
+	char *logradouro;
+	char *numero; //Usei char para numeros como 105A ou 1005-1
+	char *complemento;
 	int cep;
 } ENDERECO;
 
 //Estrutura Usuarios
 typedef struct Usuario{
-	int codigoCliente;
-	char nomeCliente[16];
-	char sobrenomeCliente[16];
+	int codigoUsuario;
+	char *nomeUsuario;
+	char *sobrenomeUsuario;
 	char categoria[8];
 	struct Endereco endereco;
-} USUARIO;
+} USUARIO;	
 
 //Estrutura Carrinho
 typedef struct Carrinho{
@@ -85,22 +85,24 @@ void MenuCliente(int opcao);
 void MenuPesquisar(int opcao, char /*parametro da pesquisa*/);//pesquisa item por tipo e nome
 void MenuRelatorios(/*parametros a definir*/);//emite relátorio de várias coisas
 void MenuTrocaUsuario(JANELA *janela);//é aquela funçao besta, tá pronta já
-int MenuSair(); //esse fica sem parametros mesmo
+int MenuSair(); //Parametro 
 void MenuExcluir(); //faltam parametros ainda para excluir produtos do carrinho
 void MenuVisualizar(); //listar o carrinho do cliente
 void MenuSuspender();//apenas salvar o carrinho com fwrite
 void MenuFechar(); //salvar e fechar o carrinho
 void MenuCancelar(int CodigoCliente); //cancelar 1 item do carrinho
 void MenuInserir();//inserir com o codigo, um item no carrinho
+void TelaLogin();
 
 
 //Variavel globais
-USUARIO usuarios[50];
+USUARIO *usuarios;
 CARRINHO carrinhos[20];
 
 //Funcao main
 int main(){
-	//lerUsuariosTexto("arquivos-de-entrada//usuarios.txt");
+	lerUsuariosTexto("arquivos-de-entrada//usuarios.txt");
+
 	inicializaNCURSES();
 	mvprintw(0, (COLS-8)/2,"ECOMMERCE");
 	mvprintw(LINES-2, COLS-27, "Pressione ESC para sair");
@@ -155,10 +157,6 @@ MENU *criarMenu(char *opcoes[], int nOpcoes){
 JANELA *criarJanela(int linhas, int colunas, int inicioy, int iniciox){
 	JANELA *janela;
 	if ((janela = (JANELA *) malloc (sizeof (JANELA))) == NULL) return NULL;
-	if ((janela->linhas = (int *) malloc ( sizeof (int))) == NULL) return NULL;
-	if ((janela->colunas = (int *) malloc ( sizeof (int))) == NULL) return NULL;
-	if ((janela->inicioy = (int *) malloc ( sizeof (int))) == NULL) return NULL;
-	if ((janela->iniciox = (int *) malloc ( sizeof (int))) == NULL) return NULL;
 	if ((janela->janela = (WINDOW *) malloc ( sizeof (WINDOW))) == NULL) return NULL; 
 
 	janela->linhas = linhas;
@@ -180,6 +178,21 @@ void destruirJanela(JANELA *janelaLocal){
 	wrefresh(janelaLocal->janela);
 	delwin(janelaLocal->janela);
 	free(janelaLocal);
+}
+
+void TelaLogin(){
+	PANEL *paineis[1];
+	
+	echo();	
+
+	JANELA *janelaCodigoUsuario;
+	refresh();
+	janelaCodigoUsuario = criarJanela(5 , 40, (LINES-6)/2, (COLS-40)/2);
+	mvwprintw(janelaCodigoUsuario->janela, 2, 5, "Informe seu codigo: ");
+	paineis[0] = new_panel(janelaCodigoUsuario->janela);
+
+	update_panels();
+	doupdate();
 }
 
 void menuCadastrado(){
@@ -230,7 +243,11 @@ void menuCadastrado(){
 				break;
 			case 10: // 10 = Tecla ENTER
 				if(i == 0){
-					
+					hide_panel(paineis[0]);
+					hide_panel(paineis[1]);
+					destruirJanela(janelaMenuCadastrado);
+					destruirJanela(janelaCadastrado);
+					TelaLogin();
 				}else{
 					
 				}
@@ -249,12 +266,19 @@ void menuCadastrado(){
 //Funçao para ler os usuarios do arquivo em modo texto e gravar em um vetor de usuarios
 void lerUsuariosTexto(char arq[15]){
 	FILE *fp;
+	int numUsuarios=0;
 	char linha[140];//Valor 140 escolhido por ser a soma do tamanho maximo de todos os dados do usuario
 	if((fp = fopen(arq, "r")) == NULL){
 		printf("Erro ao abrir o arquivo %s\n", arq);
 		exit(1);
 	}
+	while(fgets(linha,140,fp) != NULL) numUsuarios++;
+	if((usuarios = (USUARIO *) malloc(numUsuarios * sizeof(USUARIO))) == NULL){
+		printf("Erro ao alocar memoria\n");
+		exit(1);
+	}
 	int i = 0;
+	rewind(fp);
 	while(fgets(linha,140,fp) != NULL){
 		int j = 0;
 		char *pch;
@@ -262,23 +286,33 @@ void lerUsuariosTexto(char arq[15]){
 		while(pch != NULL){
 			switch(j){
 				case 0:
-					usuarios[i].codigoCliente = atoi(pch);
+					usuarios[i].codigoUsuario = atoi(pch);
 					break;
-				case 1:
-					strcpy(usuarios[i].nomeCliente, pch);
-					break;
-				case 2:
-					strcpy(usuarios[i].sobrenomeCliente, pch);
-					break;
-				case 3:
+				case 1:{
+					int tamNome = strlen(pch);
+					usuarios[i].nomeUsuario = (char *) malloc(tamNome * sizeof(char));
+					strcpy(usuarios[i].nomeUsuario, pch);
+					break;}
+				case 2:{
+					int tamSobrenome = strlen(pch);
+					usuarios[i].sobrenomeUsuario = (char *) malloc(tamSobrenome * sizeof(char));
+					strcpy(usuarios[i].sobrenomeUsuario, pch);
+					break;}
+				case 3:{
+					int tamLogradouro = strlen(pch);
+					usuarios[i].endereco.logradouro = (char *) malloc(tamLogradouro * sizeof(char));
 					strcpy(usuarios[i].endereco.logradouro, pch);
-					break;
-				case 4:
+					break;}
+				case 4:{
+					int tamNumero = strlen(pch);
+					usuarios[i].endereco.numero = (char *) malloc(tamNumero * sizeof(char));
 					strcpy(usuarios[i].endereco.numero, pch);
-					break;
-				case 5:
+					break;}
+				case 5:{
+					int tamComplemento = strlen(pch);
+					usuarios[i].endereco.complemento = (char *) malloc(tamComplemento * sizeof(char));
 					strcpy(usuarios[i].endereco.complemento, pch);
-					break;
+					break;}
 				case 6:
 					usuarios[i].endereco.cep = atoi(pch);
 					break;
@@ -290,6 +324,7 @@ void lerUsuariosTexto(char arq[15]){
 		}
 		i++;
 	}
+	fclose(fp);
 }
 
 
@@ -393,7 +428,7 @@ int MenuSair(){
 	update_panels();
 	doupdate();
 
-	int d, j=0;
+	int d, j=0, i=0;
 
 	while(d = getch()){
 		switch(d){

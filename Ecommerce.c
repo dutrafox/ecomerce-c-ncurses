@@ -58,7 +58,7 @@ typedef struct Usuario{
 	char *sobrenomeUsuario;
 	char categoria[8];
 	struct Endereco endereco;
-} USUARIO;	
+} USUARIO;
 
 //Estrutura Carrinho
 typedef struct Carrinho{
@@ -79,13 +79,13 @@ void definirMenu(WINDOW *janela, MENU *menu, int linhas, int colunas);
 void destruirJanela(JANELA *janelaLocal);
 void inicializaNCURSES();
 void menuCadastrado();
-void MenuAbrir(int *NumeroCadastro);//abre um log já existente
+void MenuAbrir(int NumeroCadastro);//abre um log já existente
 void MenuGerente(int opcao);
 void MenuCliente(int opcao);
 void MenuPesquisar(int opcao, char /*parametro da pesquisa*/);//pesquisa item por tipo e nome
 void MenuRelatorios(/*parametros a definir*/);//emite relátorio de várias coisas
 void MenuTrocaUsuario(JANELA *janela);//é aquela funçao besta, tá pronta já
-int MenuSair(); //Parametro 
+int MenuSair(); //Parametro
 void MenuExcluir(); //faltam parametros ainda para excluir produtos do carrinho
 void MenuVisualizar(); //listar o carrinho do cliente
 void MenuSuspender();//apenas salvar o carrinho com fwrite
@@ -93,11 +93,12 @@ void MenuFechar(); //salvar e fechar o carrinho
 void MenuCancelar(int CodigoCliente); //cancelar 1 item do carrinho
 void MenuInserir();//inserir com o codigo, um item no carrinho
 void TelaLogin();
+void LerCarrinho();
 
 
 //Variavel globais
 USUARIO *usuarios;
-CARRINHO carrinhos[20];
+CARRINHO *carrinhos[20];
 
 //Funcao main
 int main(){
@@ -107,9 +108,9 @@ int main(){
 	mvprintw(0, (COLS-8)/2,"ECOMMERCE");
 	mvprintw(LINES-2, COLS-27, "Pressione ESC para sair");
 	noecho();
-	
+
 	menuCadastrado();
-	
+
 	endwin();
 }
 
@@ -123,7 +124,7 @@ void inicializaNCURSES(){
 	init_pair(4, COLOR_WHITE, COLOR_BLACK);
 
 	bkgd(COLOR_PAIR(1));
-	keypad(stdscr, TRUE);	
+	keypad(stdscr, TRUE);
 	cbreak();
 }
 
@@ -157,7 +158,7 @@ MENU *criarMenu(char *opcoes[], int nOpcoes){
 JANELA *criarJanela(int linhas, int colunas, int inicioy, int iniciox){
 	JANELA *janela;
 	if ((janela = (JANELA *) malloc (sizeof (JANELA))) == NULL) return NULL;
-	if ((janela->janela = (WINDOW *) malloc ( sizeof (WINDOW))) == NULL) return NULL; 
+	if ((janela->janela = (WINDOW *) malloc ( sizeof (WINDOW))) == NULL) return NULL;
 
 	janela->linhas = linhas;
 	janela->colunas = colunas;
@@ -182,8 +183,8 @@ void destruirJanela(JANELA *janelaLocal){
 
 void TelaLogin(){
 	PANEL *paineis[1];
-	
-	echo();	
+
+	echo();
 
 	JANELA *janelaCodigoUsuario;
 	refresh();
@@ -209,12 +210,12 @@ void menuCadastrado(){
 	JANELA *janelaMenuCadastrado;
 	refresh();
 	janelaMenuCadastrado = criarJanela(1, 9, janelaCadastrado->inicioy+(janelaCadastrado->linhas/2), janelaCadastrado->iniciox+((janelaCadastrado->colunas-11)/2));
-	
+
 	char *opcoesMenuCadastrado[] = {"SIM", "NAO"};
 	MENU *menuCadastrado;
 	menuCadastrado = criarMenu(opcoesMenuCadastrado, 2);
 	definirMenu(janelaMenuCadastrado->janela, menuCadastrado, 1, 2);
-	
+
 	post_menu(menuCadastrado);
 	paineis[1] = new_panel(janelaMenuCadastrado->janela);
 	update_panels();
@@ -249,7 +250,7 @@ void menuCadastrado(){
 					destruirJanela(janelaCadastrado);
 					TelaLogin();
 				}else{
-					
+
 				}
 				break;
 			case 27: //27 = Tecla ESC
@@ -417,12 +418,12 @@ int MenuSair(){
 	JANELA *janelaMenuSair;
 	refresh();
 	janelaMenuSair = criarJanela(1, 9, janelaSair->inicioy+(janelaSair->linhas/2), janelaSair->iniciox+((janelaSair->colunas-11)/2));
-	
+
 	char *opcoesMenuSair[] = {"SIM", "NAO"};
 	MENU *menuSair;
 	menuSair = criarMenu(opcoesMenuSair, 2);
 	definirMenu(janelaMenuSair->janela, menuSair, 1, 2);
-	
+
 	post_menu(menuSair);
 	paineis[2] = new_panel(janelaMenuSair->janela);
 	update_panels();
@@ -449,7 +450,7 @@ int MenuSair(){
 					j--;
 				}
 				break;
-			case 10: // 10 = Tecla ENTER	
+			case 10: // 10 = Tecla ENTER
 				if(j == 0){
 					endwin();
 					exit(0);
@@ -465,4 +466,51 @@ int MenuSair(){
 		}
 		wrefresh(janelaMenuSair->janela);
 	}
+}
+
+void MenuAbrir(int NumeroCadastro){ //Não acabado
+    int opçao;
+    FILE *fp;
+    printw("\nDeseja iniciar uma nova compra?\n");
+
+    switch(opçao){
+
+    case 'Sim':
+        LerCarrinho();
+
+    break;
+    case 'Não':
+        if((fp = fopen("carrinho_usuario.sav", "rb")) == NULL){
+            printw("Erro ao abrir o arquivo %s\n", fp);
+            exit(1);
+            }
+        fseek(fp, sizeof CARRINHO, SEEK_SET);
+        fread(carrinhos[i], sizeof(CARRINHO), 1 , fp);
+    break;
+
+    }
+}
+
+void LerCarrinho(){ //Não acabado
+    FILE *fp;
+    int NumeroCompras=0;
+    CARRINHO temp;
+    i=0;
+    if((fp = fopen("carrinho_usuario.sav", "rb")) == NULL){
+            if((fp=fopen("carrinho_usuario.sav", "wb"))==NULL){
+                printw("\n O arquivo nao pode ser criado.");
+                exit(1);
+            }
+    }
+    while((fread(&temp, sizeof(CARRINHO), 1, fp))!=0){
+        NumeroCompras++;
+    }
+    if((carrinhos=(CARRINHO*)malloc(NumeroCompras*sizeof(CARRINHO)))==NULL){
+        printw("Erro ao alocar memoria\n");
+        exit(0);
+    }
+    rewind(fp);
+    for(i=0;i<NumeroCompras;i++){
+        fread(carrinhos[i], sizeof(CARRINHO), 1 , fp);
+    }
 }

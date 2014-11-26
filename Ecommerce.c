@@ -25,23 +25,23 @@ typedef struct Dimensao{
 //Estrutura Eletro-eletronicos
 typedef struct Eletro{
 	int codigo;
-	char descricao[31];
+	char *descricao;
 	struct Dimensao dimensEletro;
 	float preco;
 	int estoque;
-	char cor[10];
+	char *cor;
 } ELETRO;
 
 //Estrutura Vestuario
 typedef struct Vestuario{
 	int codigo;
-	char descricao[31];
-	char tamanho[3];
+	char *descricao;
+	char tamanho;
 	float preco;
 	int estoque;
-	char cor[10];
-	char genero[10];
-} VESTUARIO;
+	char *cor;
+	char genero;
+} VEST;
 
 //Estrutura Endereco
 typedef struct Endereco{
@@ -81,6 +81,8 @@ void TelaLogin();
 void LerCarrinho(int CodigoCliente);
 void TelaCriarCadastro();
 int salvarUsuarioTexto(char arq[30]);
+void LerEletro();
+void LerVestuario();
 
 //EM PRODUCAO
 int carrinhoVest(int /*numero do cadastro*/, int /*outro parametro*/ );
@@ -103,6 +105,10 @@ void MenuInserir();//inserir com o codigo, um item no carrinho
 USUARIO *usuarios;
 CARRINHO carrinhos[20];
 int numUsuarios=0;
+ELETRO *eletronico;
+int numItensEletro=0;
+VEST *vestuario;
+int numItensVest=0;
 
 //Funcao main
 int main(){
@@ -187,8 +193,8 @@ void destruirJanela(JANELA *janelaLocal){
 
 void TelaLogin(){
 	PANEL *paineis[1];
-	
-	echo();	
+
+	echo();
 
 	JANELA *janelaCodigoUsuario;
 	refresh();
@@ -201,14 +207,14 @@ void TelaLogin(){
 
 	move(((LINES-6)/2)+2, ((COLS-40)/2)+25);
 
-	int codigoUsuario;	
+	int codigoUsuario;
 	scanw("%d", &codigoUsuario);
 }
 
 void TelaCriarCadastro(){
 	PANEL *paineis[1];
 	int i;
-	
+
 	if((usuarios = (USUARIO *) realloc(usuarios, (numUsuarios+1) * sizeof(USUARIO))) == NULL){
 		printw("Erro ao alocar memoria");
 		exit(1);
@@ -269,7 +275,7 @@ void TelaCriarCadastro(){
 		hide_panel(paineis[0]);
 		destruirJanela(janelaCriarCadastro);
 		clear();
-		
+
 		JANELA *janelaExibeCodigo;
 		refresh();
 		janelaExibeCodigo = criarJanela(5 , 22, (LINES-5)/2, (COLS-21)/2);
@@ -555,7 +561,7 @@ void lerUsuariosTexto(char arq[30]){
 	fclose(fp);
 }
 
-void LerCarrinho(int CodigoCliente){
+void LerCarrinho(int CodigoCliente){ //pronta
 	FILE *fp;
 	CARRINHO temp;
 	if((fp = fopen("carrinho_usuario.sav", "rb")) == NULL){
@@ -573,12 +579,129 @@ void LerCarrinho(int CodigoCliente){
 	fclose(fp);
 }
 
-int salvarUsuarioTexto(char arq[30]){
+int salvarUsuarioTexto(char arq[30]){ //pronta
 	FILE *fp;
 	if((fp = fopen(arq, "a+")) == NULL){
 		printf("Erro ao abrir o arquivo %s\n", arq);
 		exit(1);
 	}
 	fprintf(fp, "%d,%s,%s,%s,%s,%s,%d,%s\n", usuarios[numUsuarios-1].codigoUsuario, usuarios[numUsuarios-1].nomeUsuario, usuarios[numUsuarios-1].sobrenomeUsuario, usuarios[numUsuarios-1].endereco.logradouro, usuarios[numUsuarios-1].endereco.numero, usuarios[numUsuarios-1].endereco.complemento, usuarios[numUsuarios-1].endereco.cep, usuarios[numUsuarios-1].categoria);
-	return 1;	
+	return 1;
+}
+
+void LerEletro(){
+    FILE *fp;
+    linha[100]; //coloquei 100 porque acho que nunca vai ultrapassar disso
+        if((fp=fopen("eletro.txt", "r"))==NULL){
+        wprintf("Erro ao abrir o arquivo %s\n", "eletro.txt");
+        exit(1);
+    }
+    while(fgets(linha,100,fp) != NULL){
+        numItensEletro++;
+        }
+    if((eletronico=(ELETRO *)malloc(numItensEletro*sizeof(ELETRO)))==NULL){
+		printf("Erro ao alocar memoria\n");
+		exit(1);
+        }
+    int i=0;
+    rewind(fp);
+    while(fgets(linha,100,fp) != NULL){
+        int j=0;
+        char *pch;
+        pch = strtok(linha,",");
+        while(pch != NULL){
+            switch (j){
+            case 0:
+                eletronico[i].codigo=atoi(pch);
+                break;
+            case 1:
+                int tamDescricao=strlen(pch);
+                eletronico[i].descricao=(char*)malloc(tamDescricao* sizeof(char));
+                strcpy(eletronico[i].descricao, pch);
+                break;
+            case 2:
+                eletronico[i].dimensEletro.altura=atoi(pch);
+                break;
+            case 3:
+                eletronico[i].dimensEletro.largura=atoi(pch);
+                break;
+            case 4:
+                eletronico[i].dimensEletro.altura=atoi(pch);
+                break;
+            case 5:
+                eletronico[i].dimensEletro.comprimento=atoi(pch);
+                break;
+            case 6:
+                eletronico[i].preco=atof(pch);
+                break;
+            case 7:
+                eletronico[i].estoque=atoi(pch);
+                break;
+            case 8:
+                int tamCor=strlen(pch);
+                eletronico[i].cor=(char*)malloc(tamCor*sizeof(char));
+                strcpy(eletronico[i].cor, pch);
+                break;
+            }
+           pch = strtok(NULL, ",");
+			j++;
+		}
+		i++;
+	}
+	fclose(fp);
+}
+
+void LerVestuario(){
+    FILE *fp;
+    int linha[70];
+    if((fp=fopen("vestuario.txt", "r"))==NULL){
+        wprintf("Erro ao abrir o arquivo %s\n", "vestuario.txt");
+        exit(1);
+    }
+    while((fgets(linha,70,fp))!=NULL){
+        numItensVest++;
+    }
+    if((vestuario=(char *)malloc(numItensVest*sizeof(VEST))==NULL){
+       wprintf("\nErro ao alocar memoria!");
+       exit(1);
+       }
+    int i=0;
+    rewind(fp);
+    while((fgets(linha, 70 ,fp))!=NULL){
+        char *pch;
+        int j=0;
+        pch = strtok(linha,",");
+        while (pch!=NULL){
+            switch(j){
+            case 0:
+                vestuario[i].codigo=atoi(pch);
+                break;
+            case 1:
+                int numDescricao=strlen(pch);
+                vestuario[i].descricao=(char *)malloc(numDescricao*sizeof(char));
+                strcpy(vestuario[i].descricao, pch);
+                break;
+            case 2:
+                strcpy(vestuario[i].tamanho, pch);
+                break;
+            case 3:
+                vestuario[i].preco=atof(pch);
+                break;
+            case 4:
+                vestuario[i].estoque=atoi(pch);
+                break;
+            case 5:
+                int numCor=strlen(pch);
+                vestuario[i].cor=(char *)malloc(numCor*sizeof(char));
+                strcpy(vestuario[i].cor, pch);
+                break;
+            case 6:
+                strcpy(vestuario[i].genero, pch);
+                break;
+            }
+            j++;
+        }
+        i++
+    }
+    fclose(fp);
 }

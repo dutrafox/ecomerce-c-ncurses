@@ -36,11 +36,11 @@ typedef struct Eletro{
 typedef struct Vestuario{
 	int codigo;
 	char *descricao;
-	char tamanho;
+	char tamanho[3];
 	float preco;
 	int estoque;
 	char *cor;
-	char genero;
+	char genero[10];
 } VEST;
 
 //Estrutura Endereco
@@ -112,14 +112,14 @@ int numItensVest=0;
 
 //Funcao main
 int main(){
-	lerUsuariosTexto("usuarios.txt");
+	lerUsuariosTexto("arquivos-de-entrada//usuarios.txt");
 
 	inicializaNCURSES();
 	mvprintw(0, (COLS-8)/2,"ECOMMERCE");
 	mvprintw(LINES-2, COLS-27, "Pressione ESC para sair");
 	noecho();
 
-	menuCadastrado();
+	while(1) menuCadastrado();
 
 	endwin();
 }
@@ -205,10 +205,44 @@ void TelaLogin(){
 	update_panels();
 	doupdate();
 
-	move(((LINES-6)/2)+2, ((COLS-40)/2)+25);
+	move(((LINES-6)/2)+3, ((COLS-40)/2)+25);
 
 	int codigoUsuario;
 	scanw("%d", &codigoUsuario);
+
+	if(codigoUsuario <= numUsuarios){
+		mvprintw(0,0, "xalalallala");
+	}else{
+		hide_panel(paineis[0]);
+		destruirJanela(janelaCodigoUsuario);
+		
+		JANELA *janelaErro;
+		refresh();
+		janelaErro = criarJanela(5, 37, (LINES-5)/2, (COLS-37)/2);
+		mvwprintw(janelaErro->janela, 1, (janelaErro->colunas-23)/2, "Usuario nao cadastrado!");
+		mvwprintw(janelaErro->janela, 3, (janelaErro->colunas-29)/2, "Pressione ENTER para retornar");
+		paineis[0] = new_panel(janelaErro->janela);
+
+		update_panels();
+		doupdate();
+
+		int c=0, j;
+		while((c = getch()) != 10){
+			switch(c){
+				case 27: //27 = Tecla ESC
+					j = MenuSair();
+					if(j == 0){
+						update_panels();
+						doupdate();
+					}
+			}
+			wrefresh(janelaErro->janela);
+		}
+		if(c == 10){
+			hide_panel(paineis[0]);
+			destruirJanela(janelaErro);
+		}
+	}
 }
 
 void TelaCriarCadastro(){
@@ -270,7 +304,7 @@ void TelaCriarCadastro(){
 
 	noecho();
 
-	int ok = salvarUsuarioTexto("usuarios.txt");
+	int ok = salvarUsuarioTexto("arquivos-de-entrada//usuarios.txt");
 	if(ok == 1){
 		hide_panel(paineis[0]);
 		destruirJanela(janelaCriarCadastro);
@@ -278,11 +312,29 @@ void TelaCriarCadastro(){
 
 		JANELA *janelaExibeCodigo;
 		refresh();
-		janelaExibeCodigo = criarJanela(5 , 22, (LINES-5)/2, (COLS-21)/2);
-		mvwprintw(janelaExibeCodigo->janela, 2, (janelaExibeCodigo->colunas-14)/2, "Seu codigo e: %d", numUsuarios);
+		janelaExibeCodigo = criarJanela(5 , 36, (LINES-5)/2, (COLS-21)/2);
+		mvwprintw(janelaExibeCodigo->janela, 1, (janelaExibeCodigo->colunas-14)/2, "Seu codigo e: %d", numUsuarios);
+		mvwprintw(janelaExibeCodigo->janela, 3, (janelaExibeCodigo->colunas-29)/2, "Pressione ENTER para continuar");
 		paineis[0] = new_panel(janelaExibeCodigo->janela);
 		update_panels();
 		doupdate();
+
+		int c=0, j;
+		while((c = getch()) != 10){
+			switch(c){
+				case 27: //27 = Tecla ESC
+					j = MenuSair();
+					if(j == 0){
+						update_panels();
+						doupdate();
+					}
+			}
+			wrefresh(janelaCriarCadastro->janela);
+		}
+		if(c == 10){
+			hide_panel(paineis[0]);
+			destruirJanela(janelaExibeCodigo);
+		}
 	}
 }
 
@@ -311,9 +363,9 @@ void menuCadastrado(){
 	update_panels();
 	doupdate();
 
-	int c, i=0, j;
+	int c=0, i=0, j;
 
-	while(c = getch()){ //27 = Tecla ESC
+	while((c = getch()) != 10){
 		switch(c){
 			case KEY_LEFT:
 				menu_driver(menuCadastrado, REQ_LEFT_ITEM);
@@ -332,21 +384,6 @@ void menuCadastrado(){
 					i--;
 				}
 				break;
-			case 10: // 10 = Tecla ENTER
-				if(i == 0){
-					hide_panel(paineis[0]);
-					hide_panel(paineis[1]);
-					destruirJanela(janelaMenuCadastrado);
-					destruirJanela(janelaCadastrado);
-					TelaLogin();
-				}else{
-					hide_panel(paineis[0]);
-					hide_panel(paineis[1]);
-					destruirJanela(janelaMenuCadastrado);
-					destruirJanela(janelaCadastrado);
-					TelaCriarCadastro();
-				}
-				break;
 			case 27: //27 = Tecla ESC
 				j = MenuSair();
 				if(j == 0){
@@ -355,6 +392,21 @@ void menuCadastrado(){
 				}
 		}
 		wrefresh(janelaMenuCadastrado->janela);
+	}
+	if(c == 10){
+		if(i == 0){
+			hide_panel(paineis[0]);
+			hide_panel(paineis[1]);
+			destruirJanela(janelaMenuCadastrado);
+			destruirJanela(janelaCadastrado);
+			TelaLogin();
+		}else{
+			hide_panel(paineis[0]);
+			hide_panel(paineis[1]);
+			destruirJanela(janelaMenuCadastrado);
+			destruirJanela(janelaCadastrado);
+			TelaCriarCadastro();
+		}
 	}
 }
 
@@ -561,6 +613,17 @@ void lerUsuariosTexto(char arq[30]){
 	fclose(fp);
 }
 
+int salvarUsuarioTexto(char arq[30]){ //pronta
+	FILE *fp;
+	if((fp = fopen(arq, "a+")) == NULL){
+		printf("Erro ao abrir o arquivo %s\n", arq);
+		exit(1);
+	}
+	fprintf(fp, "%d,%s,%s,%s,%s,%s,%d,%s\n", usuarios[numUsuarios-1].codigoUsuario, usuarios[numUsuarios-1].nomeUsuario, usuarios[numUsuarios-1].sobrenomeUsuario, usuarios[numUsuarios-1].endereco.logradouro, usuarios[numUsuarios-1].endereco.numero, usuarios[numUsuarios-1].endereco.complemento, usuarios[numUsuarios-1].endereco.cep, usuarios[numUsuarios-1].categoria);
+	fclose(fp);
+	return 1;
+}
+
 void LerCarrinho(int CodigoCliente){ //pronta
 	FILE *fp;
 	CARRINHO temp;
@@ -579,26 +642,16 @@ void LerCarrinho(int CodigoCliente){ //pronta
 	fclose(fp);
 }
 
-int salvarUsuarioTexto(char arq[30]){ //pronta
-	FILE *fp;
-	if((fp = fopen(arq, "a+")) == NULL){
-		printf("Erro ao abrir o arquivo %s\n", arq);
-		exit(1);
-	}
-	fprintf(fp, "%d,%s,%s,%s,%s,%s,%d,%s\n", usuarios[numUsuarios-1].codigoUsuario, usuarios[numUsuarios-1].nomeUsuario, usuarios[numUsuarios-1].sobrenomeUsuario, usuarios[numUsuarios-1].endereco.logradouro, usuarios[numUsuarios-1].endereco.numero, usuarios[numUsuarios-1].endereco.complemento, usuarios[numUsuarios-1].endereco.cep, usuarios[numUsuarios-1].categoria);
-	return 1;
-}
-
 void LerEletro(){
     FILE *fp;
-    linha[100]; //coloquei 100 porque acho que nunca vai ultrapassar disso
-        if((fp=fopen("eletro.txt", "r"))==NULL){
+    char linha[100]; //coloquei 100 porque acho que nunca vai ultrapassar disso
+    if((fp=fopen("eletro.txt", "r"))==NULL){
         wprintf("Erro ao abrir o arquivo %s\n", "eletro.txt");
         exit(1);
     }
     while(fgets(linha,100,fp) != NULL){
         numItensEletro++;
-        }
+    }
     if((eletronico=(ELETRO *)malloc(numItensEletro*sizeof(ELETRO)))==NULL){
 		printf("Erro ao alocar memoria\n");
 		exit(1);
@@ -614,11 +667,11 @@ void LerEletro(){
             case 0:
                 eletronico[i].codigo=atoi(pch);
                 break;
-            case 1:
+            case 1:{
                 int tamDescricao=strlen(pch);
                 eletronico[i].descricao=(char*)malloc(tamDescricao* sizeof(char));
                 strcpy(eletronico[i].descricao, pch);
-                break;
+                break;}
             case 2:
                 eletronico[i].dimensEletro.altura=atoi(pch);
                 break;
@@ -637,11 +690,11 @@ void LerEletro(){
             case 7:
                 eletronico[i].estoque=atoi(pch);
                 break;
-            case 8:
+            case 8:{
                 int tamCor=strlen(pch);
                 eletronico[i].cor=(char*)malloc(tamCor*sizeof(char));
                 strcpy(eletronico[i].cor, pch);
-                break;
+                break;}
             }
            pch = strtok(NULL, ",");
 			j++;
@@ -653,7 +706,7 @@ void LerEletro(){
 
 void LerVestuario(){
     FILE *fp;
-    int linha[70];
+    char linha[70];
     if((fp=fopen("vestuario.txt", "r"))==NULL){
         wprintf("Erro ao abrir o arquivo %s\n", "vestuario.txt");
         exit(1);
@@ -661,7 +714,7 @@ void LerVestuario(){
     while((fgets(linha,70,fp))!=NULL){
         numItensVest++;
     }
-    if((vestuario=(char *)malloc(numItensVest*sizeof(VEST))==NULL){
+    if((vestuario=(VEST *)malloc(numItensVest*sizeof(VEST)))==NULL){
        wprintf("\nErro ao alocar memoria!");
        exit(1);
        }
@@ -676,11 +729,11 @@ void LerVestuario(){
             case 0:
                 vestuario[i].codigo=atoi(pch);
                 break;
-            case 1:
+            case 1:{
                 int numDescricao=strlen(pch);
                 vestuario[i].descricao=(char *)malloc(numDescricao*sizeof(char));
                 strcpy(vestuario[i].descricao, pch);
-                break;
+                break;}
             case 2:
                 strcpy(vestuario[i].tamanho, pch);
                 break;
@@ -690,18 +743,18 @@ void LerVestuario(){
             case 4:
                 vestuario[i].estoque=atoi(pch);
                 break;
-            case 5:
+            case 5:{
                 int numCor=strlen(pch);
                 vestuario[i].cor=(char *)malloc(numCor*sizeof(char));
                 strcpy(vestuario[i].cor, pch);
-                break;
+                break;}
             case 6:
                 strcpy(vestuario[i].genero, pch);
                 break;
             }
             j++;
         }
-        i++
+        i++;
     }
     fclose(fp);
 }

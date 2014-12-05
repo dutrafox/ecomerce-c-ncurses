@@ -65,7 +65,7 @@ typedef struct Carrinho{
     	int CodigoCliente;
     	int CodigoProduto;
     	int quantidade;
-	char categoria[10];
+    	char categoria[10];
 } CARRINHO;
 
 //Prototipos das Funcoes
@@ -85,6 +85,7 @@ int salvarUsuarioTexto(char arq[30]);
 void LerEletro();
 void LerVestuario();
 void MenuTrocaUsuario(JANELA *janela);
+void TelaCliente();
 
 //EM PRODUCAO
 int carrinhoVest(int /*numero do cadastro*/, int /*outro parametro*/ );
@@ -104,11 +105,10 @@ void MenuInserir();//inserir com o codigo, um item no carrinho
 
 //Variavel globais
 USUARIO *usuarios;
-CARRINHO carrinhos[20];
 int numUsuarios=0;
-ELETRO *eletronico;
+CARRINHO carrinhoEletronico[20];
 int numItensEletro=0;
-VEST *vestuario;
+CARRINHO carrinhoVestuario[20];
 int numItensVest=0;
 
 //Funcao main
@@ -206,13 +206,17 @@ void TelaLogin(){
 	update_panels();
 	doupdate();
 
-	move(((LINES-6)/2)+3, ((COLS-40)/2)+25);
+	move(((LINES-6)/2)+2, ((COLS-40)/2)+25);
 
 	int codigoUsuario;
 	scanw("%d", &codigoUsuario);
 
 	if(codigoUsuario <= numUsuarios){
-		mvprintw(0,0, "xalalallala");
+		hide_panel(paineis[0]);
+		destruirJanela(janelaCodigoUsuario);
+		clear();
+
+		TelaCliente();
 	}else{
 		hide_panel(paineis[0]);
 		destruirJanela(janelaCodigoUsuario);
@@ -339,6 +343,49 @@ void TelaCriarCadastro(){
 	}
 }
 
+void TelaCliente(){
+	PANEL *paineis[4];
+
+	JANELA *janelaMenuPrincipal;
+	refresh();
+	janelaMenuPrincipal = criarJanela(3, COLS, 1, 0);
+	paineis[0] = new_panel(janelaMenuPrincipal->janela);
+
+	JANELA *janelaMenuMenuPrincipal;
+	refresh();
+	janelaMenuMenuPrincipal = criarJanela(1, 24, 2, 2);
+
+	char *opcoesMenuPrincipal[] = {"Trocar Usuario", "Sair"};
+	MENU *menuPrincipal;
+	menuPrincipal = criarMenu(opcoesMenuPrincipal, 2);
+	definirMenu(janelaMenuMenuPrincipal->janela, menuPrincipal, 1, 2);
+
+	post_menu(menuPrincipal);
+	paineis[1] = new_panel(janelaMenuMenuPrincipal->janela);
+
+	JANELA *janelaMenuCliente;
+	refresh();
+	janelaMenuCliente = criarJanela(3, COLS, 4, 0);
+	paineis[2] = new_panel(janelaMenuCliente->janela);
+
+	JANELA *janelaMenuMenuCliente;
+	refresh();
+	janelaMenuMenuCliente = criarJanela(1, 77, 5, 2);
+
+	char *opcoesMenuCliente[] = {"Pesquisar", "Inserir", "Excluir", "Visualizar", "Suspender", "Fechar", "Cancelar"};
+	MENU *menuCliente;
+	menuCliente = criarMenu(opcoesMenuCliente, 7);
+	definirMenu(janelaMenuMenuCliente->janela, menuCliente, 1, 7);
+
+	post_menu(menuCliente);
+	paineis[4] = new_panel(janelaMenuMenuCliente->janela);
+
+	update_panels();
+	doupdate();
+
+	getch();
+}
+
 void menuCadastrado(){
 	attron(COLOR_PAIR(4));
 
@@ -430,8 +477,7 @@ void MenuGerente(int opcao) { //menu de acesso exclusivo do gerente
 	*/
 }
 
-
-void MenuCliente(int opcao){ //menu de acesso do cliente
+void MenuCliente(int opcao){
 	/*
     	switch(opcao){
 		case '1':
@@ -634,15 +680,23 @@ void LerCarrinho(int CodigoCliente){ //pronta
 		        exit(1);
 		}
 	}
-	int i = 0;
+
+	int i = 0, j = 0;
 	while((fread(&temp, sizeof(CARRINHO), 1, fp))!=0){
 		if(temp.CodigoCliente == CodigoCliente){
-			carrinhos[i] = temp;
+			if(strcmp(temp.categoria, "vestuario")){
+				carrinhoEletronico[i] = temp;
+				i++;
+			}else{
+				carrinhoVestuario[j] = temp;
+				j++;
+			}
 		}
 	}
 	fclose(fp);
 }
 
+/*
 void LerEletro(){
     FILE *fp;
     char linha[100]; //coloquei 100 porque acho que nunca vai ultrapassar disso
@@ -759,6 +813,7 @@ void LerVestuario(){
     }
     fclose(fp);
 }
+*/
 
 /*void MenuVisualizar(){
     CARRINHO *temp;
@@ -782,9 +837,11 @@ void MenuAbrir(int NumeroCadastro, /*opção da interface, JANELA *janela){
     carrinhos[f]= //empaquei aqui por causa dos nossos carrinhos que estão bugados
 */
 
+/*
 void MenuCancelar(int CodigoCliente){
     free(carrinhos[f]); //decidir o que vai ser o índice f, não consegui adequar o código do cliente a ele
 }
+*/
 
 void MenuInserir(int NumeroCadastro){
     int item;

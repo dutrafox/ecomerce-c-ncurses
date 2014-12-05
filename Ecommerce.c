@@ -60,10 +60,11 @@ typedef struct Usuario{
 	struct Endereco endereco;
 } USUARIO;
 
-//Estrutura Carrinho Eletronicos
+//Estrutura Carrinho Eletroeletronicos
 typedef struct Carrinho{
     	int CodigoCliente;
     	int CodigoProduto;
+    	int quantidade;
 	char categoria[10];
 } CARRINHO;
 
@@ -83,16 +84,16 @@ void TelaCriarCadastro();
 int salvarUsuarioTexto(char arq[30]);
 void LerEletro();
 void LerVestuario();
+void MenuTrocaUsuario(JANELA *janela);
 
 //EM PRODUCAO
 int carrinhoVest(int /*numero do cadastro*/, int /*outro parametro*/ );
 int carrinhoEletro(/*algum parametro que eu ainda nao pensei*/);
 void MenuAbrir(int NumeroCadastro);//abre um log já existente
-void MenuGerente(int opcao);
-void MenuCliente(int opcao);
+void MenuGerente(int opcao);//interface
+void MenuCliente(int opcao);//interface
 void MenuPesquisar(int opcao, char /*parametro da pesquisa*/);//pesquisa item por tipo e nome
 void MenuRelatorios(/*parametros a definir*/);//emite relátorio de várias coisas
-void MenuTrocaUsuario(JANELA *janela);//é aquela funçao besta, tá pronta já
 void MenuExcluir(); //faltam parametros ainda para excluir produtos do carrinho
 void MenuVisualizar(); //listar o carrinho do cliente
 void MenuSuspender();//apenas salvar o carrinho com fwrite
@@ -215,7 +216,7 @@ void TelaLogin(){
 	}else{
 		hide_panel(paineis[0]);
 		destruirJanela(janelaCodigoUsuario);
-		
+
 		JANELA *janelaErro;
 		refresh();
 		janelaErro = criarJanela(5, 37, (LINES-5)/2, (COLS-37)/2);
@@ -758,3 +759,40 @@ void LerVestuario(){
     }
     fclose(fp);
 }
+
+/*void MenuVisualizar(){
+    CARRINHO *temp;
+    temp=LerCarrinho(int CodigoCliente);
+        while(temp!=FEOF){
+            printw("%d %s %d %d", temp.) /carrinhos bugados for the win, me travaram aqui de novo
+        }
+
+}*/
+
+/*
+void MenuAbrir(int NumeroCadastro, /*opção da interface, JANELA *janela){
+    FILE *fp;
+    i=0;
+    if((fp=fopen("carrinho_usuario.sav", "r"))==NULL){
+        printw("Erro ao abrir carrinho salvo.\n");
+        destruirJanela(janela);//não sei se precisa do exit aqui já que eu coloquei destruir janela, dá uma testada nisso
+    }
+    fseek(fp,NumeroCadastro,SEEK_SET);
+    for(i=NumeroCadastro;i<NumeroCadastro+1;i++)
+    carrinhos[f]= //empaquei aqui por causa dos nossos carrinhos que estão bugados
+*/
+
+void MenuCancelar(int CodigoCliente){
+    free(carrinhos[f]); //decidir o que vai ser o índice f, não consegui adequar o código do cliente a ele
+}
+
+void MenuInserir(int NumeroCadastro){
+    int item;
+    int quant;
+    printw("Informe o código do produto:\n");
+    scanw("%d", &item);
+    printw("Informe a quantidade do produto:\n");
+    scanw("%d", &quant);
+    //a gente precisa consertar os carrinhos ainda pra terminar essa função
+}
+

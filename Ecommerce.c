@@ -65,7 +65,7 @@ typedef struct Carrinho{
     	int CodigoCliente;
     	int CodigoProduto;
     	int quantidade;
-	int aberto;
+        int aberto;
     	char categoria[10];
 } CARRINHO;
 
@@ -95,7 +95,7 @@ int carrinhoEletro(/*algum parametro que eu ainda nao pensei*/);
 void MenuAbrir(int NumeroCadastro);//abre um log já existente
 void MenuGerente(int opcao);//interface
 void MenuCliente(int opcao);//interface
-void MenuPesquisar(int opcao, char /*parametro da pesquisa*/);//pesquisa item por tipo e nome
+void MenuPesquisar(VEST ProdutosVestuario, ELETRO ProdutosEletro);//pesquisa item por tipo e nome
 void MenuRelatorios(/*parametros a definir*/);//emite relátorio de várias coisas
 void MenuExcluir(); //faltam parametros ainda para excluir produtos do carrinho
 void MenuVisualizar(); //listar o carrinho do cliente
@@ -938,11 +938,19 @@ void MenuCancelar(int CodigoCliente){
 void MenuInserir(int NumeroCadastro){
     int item;
     int quant;
+    char cat;
+    printw("\nInforme a categoria do produto(vestuario/eletronico):\n");
+    scanw("%s", cat);
     printw("Informe o código do produto:\n");
     scanw("%d", &item);
     printw("Informe a quantidade do produto:\n");
     scanw("%d", &quant);
-    //a gente precisa consertar os carrinhos ainda pra terminar essa função
+    carrinhoEletronico[i].CodigoCliente= NumeroCadastro;
+    carrinhoEletronico[i].CodigoProduto= item;
+    carrinhoEletronico[i].quantidade=quant;
+    carrinhoEletronico[i].aberto=1;
+    carrinhoEletronico[i].categoria= cat;
+
 }
 
 void MenuPesquisar(VEST ProdutosVestuario, ELETRO ProdutosEletro){

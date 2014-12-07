@@ -60,11 +60,12 @@ typedef struct Usuario{
 	struct Endereco endereco;
 } USUARIO;
 
-//Estrutura Carrinho Eletroeletronicos
+//Estrutura Carrinho
 typedef struct Carrinho{
     	int CodigoCliente;
     	int CodigoProduto;
     	int quantidade;
+	int aberto;
     	char categoria[10];
 } CARRINHO;
 
@@ -86,6 +87,7 @@ void LerEletro();
 void LerVestuario();
 void MenuTrocaUsuario(JANELA *janela);
 void TelaCliente();
+void TelaGerente();
 
 //EM PRODUCAO
 int carrinhoVest(int /*numero do cadastro*/, int /*outro parametro*/ );
@@ -206,7 +208,7 @@ void TelaLogin(){
 	update_panels();
 	doupdate();
 
-	move(((LINES-6)/2)+2, ((COLS-40)/2)+25);
+	if(LINES % 2 == 0) move(((LINES-6)/2)+2, ((COLS-40)/2)+25); else move(((LINES-6)/2)+3, ((COLS-40)/2)+25);
 
 	int codigoUsuario;
 	scanw("%d", &codigoUsuario);
@@ -216,7 +218,12 @@ void TelaLogin(){
 		destruirJanela(janelaCodigoUsuario);
 		clear();
 
-		TelaCliente();
+		if(strcmp(usuarios[codigoUsuario-1].categoria, "cliente")){
+			mvprintw(0,0, "%s", usuarios[codigoUsuario-1].categoria);
+			TelaCliente(); 
+		}else{
+			TelaGerente();
+		}
 	}else{
 		hide_panel(paineis[0]);
 		destruirJanela(janelaCodigoUsuario);
@@ -344,47 +351,133 @@ void TelaCriarCadastro(){
 }
 
 void TelaCliente(){
-	PANEL *paineis[4];
+	PANEL *paineis[2];
 
 	JANELA *janelaMenuPrincipal;
 	refresh();
-	janelaMenuPrincipal = criarJanela(3, COLS, 1, 0);
+	janelaMenuPrincipal = criarJanela(5, COLS, 1, 0);
 	paineis[0] = new_panel(janelaMenuPrincipal->janela);
 
 	JANELA *janelaMenuMenuPrincipal;
 	refresh();
-	janelaMenuMenuPrincipal = criarJanela(1, 24, 2, 2);
+	janelaMenuMenuPrincipal = criarJanela(3, 47, 2, (COLS-49)/2);
+	mvprintw(0, (COLS-24)/2, "Ecommerce - Menu Cliente");
 
-	char *opcoesMenuPrincipal[] = {"Trocar Usuario", "Sair"};
+	char *opcoesMenuPrincipal[] = {"Trocar Usuario", "Sair", "Pesquisar", "Inserir", "Excluir", "Visualizar", "Suspender", "Fechar", "Cancelar"};
 	MENU *menuPrincipal;
-	menuPrincipal = criarMenu(opcoesMenuPrincipal, 2);
-	definirMenu(janelaMenuMenuPrincipal->janela, menuPrincipal, 1, 2);
+	menuPrincipal = criarMenu(opcoesMenuPrincipal, 9);
+	definirMenu(janelaMenuMenuPrincipal->janela, menuPrincipal, 3, 3);
 
 	post_menu(menuPrincipal);
 	paineis[1] = new_panel(janelaMenuMenuPrincipal->janela);
 
-	JANELA *janelaMenuCliente;
+	update_panels();
+	doupdate();
+
+	noecho();
+
+	int c=0, i=0, j;
+
+	while((c = getch()) != 10){
+		switch(c){
+			case KEY_LEFT:
+				menu_driver(menuPrincipal, REQ_PREV_MATCH);
+				i--;
+				break;
+			case KEY_RIGHT:
+				menu_driver(menuPrincipal, REQ_NEXT_MATCH);
+				i++;
+				break;
+			case KEY_UP:
+				menu_driver(menuPrincipal, REQ_UP_ITEM);
+				if(i >= 3){
+					i -= 3;
+				}
+				break;
+			case KEY_DOWN:
+				menu_driver(menuPrincipal, REQ_DOWN_ITEM);
+				if(i <= 5){
+					i += 3;
+				}
+				break;
+			case 27: //27 = Tecla ESC
+				j = MenuSair();
+				if(j == 0){
+					update_panels();
+					doupdate();
+				}
+		}
+		wrefresh(janelaMenuMenuPrincipal->janela);
+	}
+	if(c == 10){
+		MenuCliente(i);
+	}
+}
+
+void TelaGerente(){
+	PANEL *paineis[2];
+
+	JANELA *janelaMenuPrincipal;
 	refresh();
-	janelaMenuCliente = criarJanela(3, COLS, 4, 0);
-	paineis[2] = new_panel(janelaMenuCliente->janela);
+	janelaMenuPrincipal = criarJanela(5, COLS, 1, 0);
+	paineis[0] = new_panel(janelaMenuPrincipal->janela);
 
-	JANELA *janelaMenuMenuCliente;
+	JANELA *janelaMenuMenuPrincipal;
 	refresh();
-	janelaMenuMenuCliente = criarJanela(1, 77, 5, 2);
+	janelaMenuMenuPrincipal = criarJanela(3, 47, 2, (COLS-49)/2);
+	mvprintw(0, (COLS-24)/2, "Ecommerce - Menu Gerente");
 
-	char *opcoesMenuCliente[] = {"Pesquisar", "Inserir", "Excluir", "Visualizar", "Suspender", "Fechar", "Cancelar"};
-	MENU *menuCliente;
-	menuCliente = criarMenu(opcoesMenuCliente, 7);
-	definirMenu(janelaMenuMenuCliente->janela, menuCliente, 1, 7);
+	char *opcoesMenuPrincipal[] = {"Trocar Usuario", "Sair", "Pesquisar", "Relatorios"};
+	MENU *menuPrincipal;
+	menuPrincipal = criarMenu(opcoesMenuPrincipal, 4);
+	definirMenu(janelaMenuMenuPrincipal->janela, menuPrincipal, 1, 4);
 
-	post_menu(menuCliente);
-	paineis[4] = new_panel(janelaMenuMenuCliente->janela);
+	post_menu(menuPrincipal);
+	paineis[1] = new_panel(janelaMenuMenuPrincipal->janela);
 
 	update_panels();
 	doupdate();
 
-	getch();
+	noecho();
+
+	int c=0, i=0, j;
+
+	while((c = getch()) != 10){
+		switch(c){
+			case KEY_LEFT:
+				menu_driver(menuPrincipal, REQ_PREV_MATCH);
+				i--;
+				break;
+			case KEY_RIGHT:
+				menu_driver(menuPrincipal, REQ_NEXT_MATCH);
+				i++;
+				break;
+			case KEY_UP:
+				menu_driver(menuPrincipal, REQ_UP_ITEM);
+				if(i >= 3){
+					i -= 3;
+				}
+				break;
+			case KEY_DOWN:
+				menu_driver(menuPrincipal, REQ_DOWN_ITEM);
+				if(i <= 5){
+					i += 3;
+				}
+				break;
+			case 27: //27 = Tecla ESC
+				j = MenuSair();
+				if(j == 0){
+					update_panels();
+					doupdate();
+				}
+		}
+		wrefresh(janelaMenuMenuPrincipal->janela);
+	}
+	if(c == 10){
+		MenuCliente(i);
+	}
 }
+
 
 void menuCadastrado(){
 	attron(COLOR_PAIR(4));
@@ -480,35 +573,32 @@ void MenuGerente(int opcao) { //menu de acesso exclusivo do gerente
 void MenuCliente(int opcao){
 	/*
     	switch(opcao){
-		case '1':
-		    MenuAbrir(*NumeroCadastro);
-		    break;
-		case '2':
-		    MenuPesquisar(opcao, "busca"//parametro da pesquisa);
-		    break;
-		case '3':
-		    MenuInserir();
-		    break;
-		case '4':
-		    MenuExcluir();
-		    break;
-		case '5':
-		    MenuVisualizar();
-		    break;
-		case '6':
-		    MenuSuspender();
-		    break;
-		case '7':
-		    MenuFechar();
-		    break;
-		case '8':
-		    MenuCancelar();
-		case '9':
+		case 0:
 		    MenuTrocaUsuario(janela);
 		    break;
-		case '10':
+		case 1:
 		    MenuSair();
 		    break;
+		case 2:
+		    MenuPesquisar(opcao, "busca"//parametro da pesquisa);
+		    break;
+		case 3:
+		    MenuInserir();
+		    break;
+		case 4:
+		    MenuExcluir();
+		    break;
+		case 5:
+		    MenuVisualizar();
+		    break;
+		case 6:
+		    MenuSuspender();
+		    break;
+		case 7:
+		    MenuFechar();
+		    break;
+		case 8:
+		    MenuCancelar();
     	}
 	*/
 }
@@ -683,13 +773,15 @@ void LerCarrinho(int CodigoCliente){ //pronta
 
 	int i = 0, j = 0;
 	while((fread(&temp, sizeof(CARRINHO), 1, fp))!=0){
-		if(temp.CodigoCliente == CodigoCliente){
-			if(strcmp(temp.categoria, "vestuario")){
-				carrinhoEletronico[i] = temp;
-				i++;
-			}else{
-				carrinhoVestuario[j] = temp;
-				j++;
+		if(temp.aberto == 1){
+			if(temp.CodigoCliente == CodigoCliente){
+				if(strcmp(temp.categoria, "vestuario")){
+					carrinhoEletronico[i] = temp;
+					i++;
+				}else{
+					carrinhoVestuario[j] = temp;
+					j++;
+				}
 			}
 		}
 	}

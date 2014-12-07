@@ -4,4 +4,4 @@
 4,Alonzo,Church,Rua Treze de Maio,4007,Apto 301,97500602,cliente
 5,John,Neumann,Av Fernando Osorio,4567,,96855065,gerente
 6,Ada,Lovelace,Rod. BR 392,45,Km 70,96010000,cliente
-7,Donal,Knuth,Estrada São José do Norte,69,Km 2,98700500,cliente
+7,Donal,Knuth,Estrada São José do Norte,69,Km 2,98700500,gerente

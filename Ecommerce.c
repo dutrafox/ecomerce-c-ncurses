@@ -220,7 +220,7 @@ void TelaLogin(){
 
 		if(strcmp(usuarios[codigoUsuario-1].categoria, "cliente")){
 			mvprintw(0,0, "%s", usuarios[codigoUsuario-1].categoria);
-			TelaCliente(); 
+			TelaCliente();
 		}else{
 			TelaGerente();
 		}
@@ -944,4 +944,129 @@ void MenuInserir(int NumeroCadastro){
     scanw("%d", &quant);
     //a gente precisa consertar os carrinhos ainda pra terminar essa função
 }
+
+void MenuPesquisar(VEST ProdutosVestuario, ELETRO ProdutosEletro){
+    char j;
+    char e;
+    char v;
+    int i;
+    int pesquisaInt;
+    char pesquisaChar;
+    float pesquisaFloat;
+    printw("Escolha o tipo do produto de sua pesquisa:\n");
+        printw("\t Eletro ou Vestuario?\n");
+        scanw("%c", &j);
+    switch(j){
+    case 'E':
+        printw("Escolha algum parâmetro para pesquisar seu eletroeletronico:\n");
+        printw("\n\t O - cOdigo\n");
+        printw("\t D - Descricao\n");
+        printw("\t P - Preco\n");
+        printw("\t C - Cor\n");
+        scanw("%c", &e);
+            switch(e){
+            case 'O':
+                printw("\t Digite o codigo pelo qual deseja procurar:\n");
+                scanw("%d", &pesquisaInt);
+                for(i=0;i<numItensEletro;i++){
+                    if(ProdutosEletro[i].codigo==pesquisaInt){
+                        printw("\n\t%d \n\t%s \n\t%d \n\t%d \n\t%d \n\t%f \n\t%d \n\t%s\n", ProdutosEletro[i].codigo, ProdutosEletro[i].descricao, ProdutosEletro[i].dimensEletro.altura, ProdutosEletro[i].dimensEletro.largura, ProdutosEletro[i].dimensEletro.comprimento, ProdutosEletro[i].preco, ProdutosEletro[i].cor);
+                    }
+                }
+                break;
+            case 'D':
+                printw("\t Digite a descricao que deseja procurar:")
+                scanw("%s", &pesquisaChar);
+                for(i=0;i<numItensEletro;i++){
+                    if(strcmp(pesquisaChar, ProdutosEletro.descricao)==0){
+                        printw("\n\t%d \n\t%s \n\t%d \n\t%d \n\t%d \n\t%f \n\t%d \n\t%s\n", ProdutosEletro[i].codigo, ProdutosEletro[i].descricao, ProdutosEletro[i].dimensEletro.altura, ProdutosEletro[i].dimensEletro.largura, ProdutosEletro[i].dimensEletro.comprimento, ProdutosEletro[i].preco, ProdutosEletro[i].cor);
+                    }
+                break;
+            case 'P':
+                printw("\t Digite o preco:");
+                scanw("%f", &pesquisaFloat);
+                for(i=0;i<numItensEletro;i++){
+                    if(ProdutosEletro[i].preco==pesquisaFloat){
+                        printw("\n\t%d \n\t%s \n\t%d \n\t%d \n\t%d \n\t%f \n\t%d \n\t%s\n", ProdutosEletro[i].codigo, ProdutosEletro[i].descricao, ProdutosEletro[i].dimensEletro.altura, ProdutosEletro[i].dimensEletro.largura, ProdutosEletro[i].dimensEletro.comprimento, ProdutosEletro[i].preco, ProdutosEletro[i].cor);
+                    }
+                break;
+            case 'C':
+                printw("\n Informe a cor que deseja procurar:\n");
+                scanw("%s", &pesquisaChar);
+                for(i=0;i<numItensEletro;i++){
+                    if(strcmp(pesquisaChar, ProdutosEletro.cor)==0){
+                        printw("\n\t%d \n\t%s \n\t%d \n\t%d \n\t%d \n\t%f \n\t%d \n\t%s\n", ProdutosEletro[i].codigo, ProdutosEletro[i].descricao, ProdutosEletro[i].dimensEletro.altura, ProdutosEletro[i].dimensEletro.largura, ProdutosEletro[i].dimensEletro.comprimento, ProdutosEletro[i].preco, ProdutosEletro[i].cor);
+                    }
+                break;
+            }
+        break;
+    case 'V':
+        printw("Escolha algum parâmetro para pesquisar seu artigo de vestuario:\n");
+        printw("\n\t O - cOdigo\n");
+        printw("\t D - Descricao\n");
+        printw("\t T - Tamanho\n");
+        printw("\t P - Preco\n");
+        printw("\t C - Cor\n");
+        printw("\t G - Genero\n");
+        scanw("%c", &v);
+            switch(v){
+            case 'O':
+                printw("\t Digite o codigo pelo qual deseja procurar:\n");
+                scanw("%d", &pesquisaInt);
+                for(i=0;i<numItensVest;i++){
+                    if(ProdutosVestuario[i].codigo==pesquisaInt){
+                        printw("\n\t%d \n\t%s \n\t%s \n\t%f \n\t%d \n\t%s \n\t%s \n", ProdutosVestuario[i].codigo, ProdutosVestuario[i].descricao, ProdutosVestuario[i].tamanho, ProdutosVestuario[i].preco, ProdutosVestuario[i].cor, ProdutosVestuario[i].genero);
+                    }
+                break;
+            case 'D':
+                printw("\t Informe a descricao do produto:\n");
+                scanw("%s", &pesquisaChar);
+                for(i=0;i<numItensVest;i++){
+                    if((strcmp(ProdutosVestuario[i], pesquisaChar))==0){
+                        printw("\n\t%d \n\t%s \n\t%s \n\t%f \n\t%d \n\t%s \n\t%s \n", ProdutosVestuario[i].codigo, ProdutosVestuario[i].descricao, ProdutosVestuario[i].tamanho, ProdutosVestuario[i].preco, ProdutosVestuario[i].cor, ProdutosVestuario[i].genero);
+                    }
+                break;
+            case 'T':
+                printw("\t Digite o tamanho pelo qual deseja procurar:\n");
+                scanw("%s", &pesquisaChar);
+                for(i=0;i<numItensVest;i++){
+                    if((strcmp(ProdutosVestuario[i].tamanho==pesquisaChar))==0){
+                        printw("\n\t%d \n\t%s \n\t%s \n\t%f \n\t%d \n\t%s \n\t%s \n", ProdutosVestuario[i].codigo, ProdutosVestuario[i].descricao, ProdutosVestuario[i].tamanho, ProdutosVestuario[i].preco, ProdutosVestuario[i].cor, ProdutosVestuario[i].genero);
+                    }
+                break;
+            case 'P':
+                printw("\t Digite o preco pelo qual deseja procurar:\n");
+                scanw("%f", &pesquisaFloat);
+                for(i=0;i<numItensVest;i++){
+                    if(ProdutosVestuario[i].preco==pesquisaFloat){
+                        printw("\n\t%d \n\t%s \n\t%s \n\t%f \n\t%d \n\t%s \n\t%s \n", ProdutosVestuario[i].codigo, ProdutosVestuario[i].descricao, ProdutosVestuario[i].tamanho, ProdutosVestuario[i].preco, ProdutosVestuario[i].cor, ProdutosVestuario[i].genero);
+                    }
+                break;
+            case 'C':
+                printw("\t Digite a cor pela qual deseja procurar:\n");
+                scanw("%s", &pesquisaChar);
+                for(i=0;i<numItensVest;i++){
+                    if((strcmp(ProdutosVestuario[i].cor, pesquisaChar))==0){
+                        printw("\n\t%d \n\t%s \n\t%s \n\t%f \n\t%d \n\t%s \n\t%s \n", ProdutosVestuario[i].codigo, ProdutosVestuario[i].descricao, ProdutosVestuario[i].tamanho, ProdutosVestuario[i].preco, ProdutosVestuario[i].cor, ProdutosVestuario[i].genero);
+                    }
+                break;
+            case 'G':
+                printw("\t Digite o genero pelo qual deseja procurar (masculino, feminino ou unissex):\n");
+                scanw("%s", &pesquisaChar);
+                for(i=0;i<numItensVest;i++){
+                    if(strcmp(ProdutosVestuario[i].genero, pesquisaChar)){
+                        printw("\n\t%d \n\t%s \n\t%s \n\t%f \n\t%d \n\t%s \n\t%s \n", ProdutosVestuario[i].codigo, ProdutosVestuario[i].descricao, ProdutosVestuario[i].tamanho, ProdutosVestuario[i].preco, ProdutosVestuario[i].cor, ProdutosVestuario[i].genero);
+                    }
+                break;
+            default:
+                printw("\n\t Essa opçao nao e valida\n");
+                break;
+            }
+        break;
+    default:
+        printw("Esta nao e uma opçao valida!");
+        break;
+    }
+}
+
 

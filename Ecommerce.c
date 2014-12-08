@@ -90,21 +90,17 @@ void TelaCliente(int codigoUsuario);
 void TelaGerente(int codigoUsuario);
 int TelaContinuaCompra();
 void ApagarCompra(int CodigoCliente);
+int MenuInserir(int NumeroCadastro, int quant, char cat);
 
 //EM PRODUCAO
-int carrinhoVest(int /*numero do cadastro*/, int /*outro parametro*/ );
-int carrinhoEletro(/*algum parametro que eu ainda nao pensei*/);
 void MenuAbrir(int NumeroCadastro);//abre um log já existente
-void MenuGerente(int opcao);//interface
-void MenuCliente(int opcao);//interface
 void MenuPesquisar(int opcao, char /*parametro da pesquisa*/);//pesquisa item por tipo e nome
 void MenuRelatorios(/*parametros a definir*/);//emite relátorio de várias coisas
-void MenuExcluir(); //faltam parametros ainda para excluir produtos do carrinho
 void MenuVisualizar(); //listar o carrinho do cliente
 void MenuSuspender();//apenas salvar o carrinho com fwrite
 void MenuFechar(); //salvar e fechar o carrinho
 void MenuCancelar(int CodigoCliente); //cancelar 1 item do carrinho
-void MenuInserir();//inserir com o codigo, um item no carrinho
+
 
 
 //Variavel globais
@@ -221,7 +217,7 @@ void TelaLogin(){
 		clear();
 
 		if(usuarios[codigoUsuario-1].categoriaUsuario[0] == 'c'){
-			TelaCliente(codigoUsuario); 
+			TelaCliente(codigoUsuario);
 		}else{
 			TelaGerente(codigoUsuario);
 		}
@@ -459,7 +455,7 @@ void TelaCliente(int codigoUsuario){
 			ApagarCompra(codigoUsuario);
 		}
 	}
-	
+
 	PANEL *paineis[2];
 
 	JANELA *janelaMenuPrincipal;
@@ -817,7 +813,7 @@ void lerUsuariosTexto(char arq[30]){
 					break;
 				case 7:;
 					strcpy(usuarios[i].categoriaUsuario, pch);
-					
+
 			}
 			pch = strtok(NULL, ",");
 			j++;
@@ -1212,3 +1208,36 @@ void MenuPesquisar(VEST ProdutosVestuario, ELETRO ProdutosEletro){
     }
 }
 */
+MenuExcluir(int CodigoCliente, int CodigoProduto){
+    FILE *fp;
+	CARRINHO temp;
+
+    if((fp = fopen("carrinho_usuario.sav", "r+b")) == NULL){
+			printw("\n O arquivo nao pode ser criado.");
+		    exit(1);
+	}
+
+	int i = 0, j = 0;
+	while((fread(&temp, sizeof(CARRINHO), 1, fp))!=0){
+		if(temp.CodigoCodigoProduto == CodigoProduto && temp.aberto == 1){
+			temp.aberto = 0;
+			fwrite(&temp, sizeof(CARRINHO), 1, fp);
+
+
+		}
+	}
+
+	i =0;
+
+	for(i; i < 20; i++){
+		if(carrinhoVestuario[i].CodigoProduto==CodigoProduto){
+		carrinhoVestuario[i].CodigoCliente = NULL;
+		}
+		if(carrinhoEletronico[i].CodigoProduto==CodigoProduto){
+        carrinhoEletronico[i].CodigoCliente = NULL;
+		}
+	}
+
+	fclose(fp);
+
+}

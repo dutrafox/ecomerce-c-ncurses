@@ -86,9 +86,10 @@ int salvarUsuarioTexto(char arq[30]);
 void LerEletro();
 void LerVestuario();
 void MenuTrocaUsuario(JANELA *janela);
-void TelaCliente();
-void TelaGerente();
-int MenuInserir(int NumeroCadastro, int quant, char cat);
+void TelaCliente(int codigoUsuario);
+void TelaGerente(int codigoUsuario);
+int TelaContinuaCompra();
+void ApagarCompra(int CodigoCliente);
 
 //EM PRODUCAO
 int carrinhoVest(int /*numero do cadastro*/, int /*outro parametro*/ );
@@ -103,6 +104,7 @@ void MenuVisualizar(); //listar o carrinho do cliente
 void MenuSuspender();//apenas salvar o carrinho com fwrite
 void MenuFechar(); //salvar e fechar o carrinho
 void MenuCancelar(int CodigoCliente); //cancelar 1 item do carrinho
+void MenuInserir();//inserir com o codigo, um item no carrinho
 
 
 //Variavel globais
@@ -219,9 +221,9 @@ void TelaLogin(){
 		clear();
 
 		if(usuarios[codigoUsuario-1].categoriaUsuario[0] == 'c'){
-			TelaCliente(); 
+			TelaCliente(codigoUsuario); 
 		}else{
-			TelaGerente();
+			TelaGerente(codigoUsuario);
 		}
 	}else{
 		hide_panel(paineis[0]);
@@ -349,7 +351,115 @@ void TelaCriarCadastro(){
 	}
 }
 
-void TelaCliente(){
+int TelaContinuaCompra(){
+	PANEL *paineis[2];
+
+	mvprintw(0, (COLS-8)/2,"ECOMMERCE");
+	mvprintw(LINES-2, COLS-27, "Pressione ESC para sair");
+
+	JANELA *janelaContinuaCompra;
+	refresh();
+	janelaContinuaCompra = criarJanela(5, 50, (LINES-7)/2, (COLS-50)/2);
+	mvprintw((LINES-5)/2, (COLS-38)/2, "Deseja continuar sua compra anterior?");
+	paineis[0] = new_panel(janelaContinuaCompra->janela);
+
+	JANELA *janelaMenuContinuaCompra;
+	refresh();
+	janelaMenuContinuaCompra = criarJanela(1,9, janelaContinuaCompra->inicioy+(janelaContinuaCompra->linhas/2), janelaContinuaCompra->iniciox+((janelaContinuaCompra->colunas-9)/2));
+
+	char *opcoesMenuContinuaCompra[] = {"SIM", "NAO"};
+	MENU *menuContinuaCompra;
+	menuContinuaCompra = criarMenu(opcoesMenuContinuaCompra, 2);
+	definirMenu(janelaMenuContinuaCompra->janela, menuContinuaCompra, 1, 2);
+
+	post_menu(menuContinuaCompra);
+	paineis[1] = new_panel(janelaMenuContinuaCompra->janela);
+
+	update_panels();
+	doupdate();
+
+	noecho();
+
+	int d = 0, j=0;
+
+	while((d = getch()) != 10){
+		switch(d){
+			case KEY_LEFT:
+				menu_driver(menuContinuaCompra, REQ_LEFT_ITEM);
+				if(j != 0) j--;
+				break;
+			case KEY_RIGHT:
+				menu_driver(menuContinuaCompra, REQ_RIGHT_ITEM);
+				if(j != 1) j++;
+				break;
+			case 9: // 9 = Tecla TAB
+				if(j < 1){
+					menu_driver(menuContinuaCompra, REQ_NEXT_MATCH);
+					j++;
+				}else{
+					menu_driver(menuContinuaCompra, REQ_PREV_MATCH);
+					j--;
+				}
+				break;
+
+				//COLOCAR ESC AQUI DEPOIS
+		}
+		wrefresh(janelaMenuContinuaCompra->janela);
+	}
+	if(d == 10){
+		hide_panel(paineis[0]);
+		hide_panel(paineis[1]);
+		destruirJanela(janelaContinuaCompra);
+		destruirJanela(janelaMenuContinuaCompra);
+		update_panels();
+		doupdate();
+		clear();
+		if(j == 0){
+			return 1;
+		}else{
+			return 0;
+		}
+	}
+}
+
+void TelaPesquisar(){
+	PANEL *paineis[2];
+
+	JANELA *janelaMenuPesquisar;
+	refresh();
+	janelaMenuPrincipal = criarJanela(5, COLS, 1, 0);
+	paineis[0] = new_panel(anelaMenuPesquisar->janela);
+
+	JANELA *janelaMenuMenuPesquisar;
+	refresh();
+	janelaMenuMenuPesquisar = criarJanela(3, 47, 2, (COLS-49)/2);
+	mvprintw(0, (COLS-21)/2, "Ecommerce - Pesquisar");
+	mvprintw(LINES-2, COLS-27, "Pressione ESC para sair");
+
+	char *opcoesMenuPesquisar[] = {"Eletronicos", "Vestuario"};
+	MENU *menuPesquisar;
+	menuPesquisar = criarMenu(opcoesMenuPesquisar, 2);
+	definirMenu(janelaMenuMenuPesquisar->janela, menuPesquisar, 1, 2);
+
+	post_menu(menuPesquisar);
+	paineis[1] = new_panel(janelaMenuMenuPesquisar->janela);
+
+	update_panels();
+	doupdate();
+
+
+}
+
+void TelaCliente(int codigoUsuario){
+	LerCarrinho(codigoUsuario);
+
+	if(carrinhoEletronico[0].CodigoCliente != NULL && carrinhoVestuario[0].CodigoCliente != NULL){
+		int continua = TelaContinuaCompra();
+		if(continua == 0){
+			ApagarCompra(codigoUsuario);
+		}
+	}
+	
 	PANEL *paineis[2];
 
 	JANELA *janelaMenuPrincipal;
@@ -361,6 +471,7 @@ void TelaCliente(){
 	refresh();
 	janelaMenuMenuPrincipal = criarJanela(3, 47, 2, (COLS-49)/2);
 	mvprintw(0, (COLS-24)/2, "Ecommerce - Menu Cliente");
+	mvprintw(LINES-2, COLS-27, "Pressione ESC para sair");
 
 	char *opcoesMenuPrincipal[] = {"Trocar Usuario", "Sair", "Pesquisar", "Inserir", "Excluir", "Visualizar", "Suspender", "Fechar", "Cancelar"};
 	MENU *menuPrincipal;
@@ -377,15 +488,15 @@ void TelaCliente(){
 
 	int c=0, i=0, j;
 
-	while((c = getch()) != 10){
+	while((c = getch()) != 300){
 		switch(c){
 			case KEY_LEFT:
 				menu_driver(menuPrincipal, REQ_PREV_MATCH);
-				i--;
+				if(i != 0 && i != 3 && i != 6) i--;
 				break;
 			case KEY_RIGHT:
 				menu_driver(menuPrincipal, REQ_NEXT_MATCH);
-				i++;
+				if(i != 2 && i != 5 && i != 8) i++;
 				break;
 			case KEY_UP:
 				menu_driver(menuPrincipal, REQ_UP_ITEM);
@@ -405,25 +516,43 @@ void TelaCliente(){
 					update_panels();
 					doupdate();
 				}
+			case 10:
+				hide_panel(paineis[0]);
+				hide_panel(paineis[1]);
+				update_panels();
+				doupdate();
+				switch(i){
+					case 0:
+						destruirJanela(janelaMenuPrincipal);
+						destruirJanela(janelaMenuMenuPrincipal);
+						c = 300;
+						break;
+					case 1:
+						j = MenuSair();
+						if(j == 0){
+							update_panels();
+							doupdate();
+						}
+					case 2:
+						TelaPesquisar();
+				}
+
 		}
 		wrefresh(janelaMenuMenuPrincipal->janela);
 	}
-	if(c == 10){
-		MenuCliente(i);
-	}
 }
 
-void TelaGerente(){
+void TelaGerente(int codigoUsuario){
 	PANEL *paineis[2];
 
 	JANELA *janelaMenuPrincipal;
 	refresh();
-	janelaMenuPrincipal = criarJanela(5, COLS, 1, 0);
+	janelaMenuPrincipal = criarJanela(3, COLS, 1, 0);
 	paineis[0] = new_panel(janelaMenuPrincipal->janela);
 
 	JANELA *janelaMenuMenuPrincipal;
 	refresh();
-	janelaMenuMenuPrincipal = criarJanela(3, 47, 2, (COLS-49)/2);
+	janelaMenuMenuPrincipal = criarJanela(1, 63, 2, (COLS-63)/2);
 	mvprintw(0, (COLS-24)/2, "Ecommerce - Menu Gerente");
 
 	char *opcoesMenuPrincipal[] = {"Trocar Usuario", "Sair", "Pesquisar", "Relatorios"};
@@ -445,23 +574,11 @@ void TelaGerente(){
 		switch(c){
 			case KEY_LEFT:
 				menu_driver(menuPrincipal, REQ_PREV_MATCH);
-				i--;
+				if(i != 0) i--;
 				break;
 			case KEY_RIGHT:
 				menu_driver(menuPrincipal, REQ_NEXT_MATCH);
-				i++;
-				break;
-			case KEY_UP:
-				menu_driver(menuPrincipal, REQ_UP_ITEM);
-				if(i >= 3){
-					i -= 3;
-				}
-				break;
-			case KEY_DOWN:
-				menu_driver(menuPrincipal, REQ_DOWN_ITEM);
-				if(i <= 5){
-					i += 3;
-				}
+				if(i != 2) i++;
 				break;
 			case 27: //27 = Tecla ESC
 				j = MenuSair();
@@ -471,9 +588,6 @@ void TelaGerente(){
 				}
 		}
 		wrefresh(janelaMenuMenuPrincipal->janela);
-	}
-	if(c == 10){
-		MenuCliente(i);
 	}
 }
 
@@ -567,43 +681,6 @@ void MenuGerente(int opcao) { //menu de acesso exclusivo do gerente
 		   break;
         }
 	*/
-}
-
-void MenuCliente(int opcao){
-	/*
-    	switch(opcao){
-		case 0:
-		    MenuTrocaUsuario(janela);
-		    break;
-		case 1:
-		    MenuSair();
-		    break;
-		case 2:
-		    MenuPesquisar(opcao, "busca"//parametro da pesquisa);
-		    break;
-		case 3:
-		    MenuInserir();
-		    break;
-		case 4:
-		    MenuExcluir();
-		    break;
-		case 5:
-		    MenuVisualizar();
-		    break;
-		case 6:
-		    MenuSuspender();
-		    break;
-		case 7:
-		    MenuFechar();
-		    break;
-		case 8:
-		    MenuCancelar();
-    	}
-	*/
-}
-
-void MenuTrocaUsuario(JANELA *janela){
-    destruirJanela(janela);
 }
 
 int MenuSair(){
@@ -762,6 +839,12 @@ int salvarUsuarioTexto(char arq[30]){ //pronta
 }
 
 void LerCarrinho(int CodigoCliente){ //pronta
+	int i = 0;
+	for(i; i < 20; i++){
+		carrinhoVestuario[i].CodigoCliente = NULL;
+		carrinhoEletronico[i].CodigoCliente = NULL;
+	}
+
 	FILE *fp;
 	CARRINHO temp;
 	if((fp = fopen("carrinho_usuario.sav", "rb")) == NULL){
@@ -771,7 +854,8 @@ void LerCarrinho(int CodigoCliente){ //pronta
 		}
 	}
 
-	int i = 0, j = 0;
+	i = 0;
+	int j = 0;
 	while((fread(&temp, sizeof(CARRINHO), 1, fp))!=0){
 		if(temp.aberto == 1){
 			if(temp.CodigoCliente == CodigoCliente){
@@ -785,6 +869,33 @@ void LerCarrinho(int CodigoCliente){ //pronta
 			}
 		}
 	}
+	fclose(fp);
+}
+
+void ApagarCompra(int CodigoCliente){
+	FILE *fp;
+	CARRINHO temp;
+
+	if((fp = fopen("carrinho_usuario.sav", "r+b")) == NULL){
+			printw("\n O arquivo nao pode ser criado.");
+		    exit(1);
+	}
+
+	int i = 0, j = 0;
+	while((fread(&temp, sizeof(CARRINHO), 1, fp))!=0){
+		if(temp.CodigoCliente == CodigoCliente && temp.aberto == 1){
+			temp.aberto = 0;
+			fwrite(&temp, sizeof(CARRINHO), 1, fp);
+		}
+	}
+
+	i =0;
+
+	for(i; i < 20; i++){
+		carrinhoVestuario[i].CodigoCliente = NULL;
+		carrinhoEletronico[i].CodigoCliente = NULL;
+	}
+
 	fclose(fp);
 }
 
@@ -971,6 +1082,12 @@ int MenuInserir(int NumeroCadastro, int quant, char cat){
     return 0;
 }
 
+MenuCancelar(int CodigoCliente){
+    ApagarCompra(CodigoCliente);
+    //mesma coisa da troca usuario
+}
+
+/*
 void MenuPesquisar(VEST ProdutosVestuario, ELETRO ProdutosEletro){
     char j;
     char e;
@@ -1094,13 +1211,4 @@ void MenuPesquisar(VEST ProdutosVestuario, ELETRO ProdutosEletro){
         break;
     }
 }
-<<<<<<< HEAD
-
-MenuCancelar(int CodigoCliente){
-    ApagarCompra(CodigoCliente);
-    //mesma coisa da troca usuario
-    }
-
-
-=======
->>>>>>> origin/master
+*/

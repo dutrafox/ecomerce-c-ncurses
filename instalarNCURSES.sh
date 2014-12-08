@@ -15,4 +15,4 @@ echo "### Instalando ###"
 make install
 #Compilar Ecommerce
 echo "### Compilando Ecommerce ###"
-gcc ../Ecommerce.c -o ../Ecommerce -lncurses -lmenu
+gcc ../Ecommerce.c -o ../Ecommerce -lncurses -lmenu -lpanel

@@ -17,9 +17,9 @@ typedef struct Janela{
 
 //Estrutura Dimensao
 typedef struct Dimensao{
-	int altura;
-	int largura;
-	int comprimento;
+	float altura;
+	float largura;
+	float comprimento;
 } DIMENSAO;
 
 //Estrutura Eletro-eletronicos
@@ -65,7 +65,7 @@ typedef struct Carrinho{
     	int CodigoCliente;
     	int CodigoProduto;
     	int quantidade;
-	int aberto;
+		int aberto;
     	char categoria[10];
 } CARRINHO;
 
@@ -90,30 +90,34 @@ void TelaCliente(int codigoUsuario);
 void TelaGerente(int codigoUsuario);
 int TelaContinuaCompra();
 void ApagarCompra(int CodigoCliente);
-int MenuInserir(int NumeroCadastro, int quant, char cat);
 
 //EM PRODUCAO
 void MenuAbrir(int NumeroCadastro);//abre um log já existente
 void MenuPesquisar(int opcao, char /*parametro da pesquisa*/);//pesquisa item por tipo e nome
 void MenuRelatorios(/*parametros a definir*/);//emite relátorio de várias coisas
+void MenuExcluir(int CodigoCliente, int CodigoProduto); //faltam parametros ainda para excluir produtos do carrinho
 void MenuVisualizar(); //listar o carrinho do cliente
 void MenuSuspender();//apenas salvar o carrinho com fwrite
 void MenuFechar(); //salvar e fechar o carrinho
 void MenuCancelar(int CodigoCliente); //cancelar 1 item do carrinho
-
+int MenuInserir(int NumeroCadastro, int quant, char cat);//inserir com o codigo, um item no carrinho
 
 
 //Variavel globais
 USUARIO *usuarios;
 int numUsuarios=0;
 CARRINHO carrinhoEletronico[20];
-int numItensEletro=0;
 CARRINHO carrinhoVestuario[20];
+int numItensEletro=0;
 int numItensVest=0;
+ELETRO *eletronico;
+VEST *vestuario;
 
 //Funcao main
 int main(){
 	lerUsuariosTexto("arquivos-de-entrada//usuarios.txt");
+	//LerEletro();
+	//LerVestuario();
 
 	inicializaNCURSES();
 	mvprintw(0, (COLS-8)/2,"ECOMMERCE");
@@ -217,7 +221,7 @@ void TelaLogin(){
 		clear();
 
 		if(usuarios[codigoUsuario-1].categoriaUsuario[0] == 'c'){
-			TelaCliente(codigoUsuario);
+			TelaCliente(codigoUsuario); 
 		}else{
 			TelaGerente(codigoUsuario);
 		}
@@ -423,8 +427,8 @@ void TelaPesquisar(){
 
 	JANELA *janelaMenuPesquisar;
 	refresh();
-	janelaMenuPrincipal = criarJanela(5, COLS, 1, 0);
-	paineis[0] = new_panel(anelaMenuPesquisar->janela);
+	janelaMenuPesquisar = criarJanela(5, COLS, 1, 0);
+	paineis[0] = new_panel(janelaMenuPesquisar->janela);
 
 	JANELA *janelaMenuMenuPesquisar;
 	refresh();
@@ -442,8 +446,6 @@ void TelaPesquisar(){
 
 	update_panels();
 	doupdate();
-
-
 }
 
 void TelaCliente(int codigoUsuario){
@@ -455,7 +457,7 @@ void TelaCliente(int codigoUsuario){
 			ApagarCompra(codigoUsuario);
 		}
 	}
-
+	
 	PANEL *paineis[2];
 
 	JANELA *janelaMenuPrincipal;
@@ -482,9 +484,10 @@ void TelaCliente(int codigoUsuario){
 
 	noecho();
 
-	int c=0, i=0, j;
+	int c=0, i=0, j, encerra=0;
 
-	while((c = getch()) != 300){
+	while(encerra != 1){
+		c = getch();
 		switch(c){
 			case KEY_LEFT:
 				menu_driver(menuPrincipal, REQ_PREV_MATCH);
@@ -513,24 +516,28 @@ void TelaCliente(int codigoUsuario){
 					doupdate();
 				}
 			case 10:
-				hide_panel(paineis[0]);
-				hide_panel(paineis[1]);
-				update_panels();
-				doupdate();
 				switch(i){
-					case 0:
+					case 0:{
+						hide_panel(paineis[0]);
+						hide_panel(paineis[1]);
 						destruirJanela(janelaMenuPrincipal);
 						destruirJanela(janelaMenuMenuPrincipal);
-						c = 300;
-						break;
-					case 1:
+						update_panels();
+						doupdate();
+						encerra = 1;
+						break;}
+					case 1:{
 						j = MenuSair();
 						if(j == 0){
 							update_panels();
 							doupdate();
 						}
+						break;}
 					case 2:
 						TelaPesquisar();
+						break;
+					case 3:
+						break;
 				}
 
 		}
@@ -658,25 +665,6 @@ void menuCadastrado(){
 			TelaCriarCadastro();
 		}
 	}
-}
-
-void MenuGerente(int opcao) { //menu de acesso exclusivo do gerente
-	/*
-    	switch(opcao){
-		case '1':
-		    MenuPesquisar(opcao, "busca"//parametro da pesquisa);
-		    break;
-		case '2':
-		    MenuRelatorios();
-		    break;
-		case '3':
-		    MenuTrocaUsuario(janela);
-		    break;
-		case '4':
-		   MenuSair();
-		   break;
-        }
-	*/
 }
 
 int MenuSair(){
@@ -813,7 +801,7 @@ void lerUsuariosTexto(char arq[30]){
 					break;
 				case 7:;
 					strcpy(usuarios[i].categoriaUsuario, pch);
-
+					
 			}
 			pch = strtok(NULL, ",");
 			j++;
@@ -898,21 +886,19 @@ void ApagarCompra(int CodigoCliente){
 /*
 void LerEletro(){
     FILE *fp;
-    char linha[100]; //coloquei 100 porque acho que nunca vai ultrapassar disso
-    if((fp=fopen("eletro.txt", "r"))==NULL){
-        wprintf("Erro ao abrir o arquivo %s\n", "eletro.txt");
+    char linha[256];
+    if((fp=fopen("arquivos-de-entrada//eletro.txt", "r"))==NULL){
+        printf("Erro ao abrir o arquivo %s\n", "arquivos-de-entrada//eletro.txt ");
         exit(1);
     }
-    while(fgets(linha,100,fp) != NULL){
-        numItensEletro++;
-    }
-    if((eletronico=(ELETRO *)malloc(numItensEletro*sizeof(ELETRO)))==NULL){
+    while(fgets(linha,256,fp) != NULL) numItensEletro++;
+    if((eletronico = (ELETRO *) malloc(numItensEletro * sizeof(ELETRO))) == NULL){
 		printf("Erro ao alocar memoria\n");
 		exit(1);
-        }
+    }
     int i=0;
     rewind(fp);
-    while(fgets(linha,100,fp) != NULL){
+    while(fgets(linha,256,fp) != NULL){
         int j=0;
         char *pch;
         pch = strtok(linha,",");
@@ -923,8 +909,9 @@ void LerEletro(){
                 break;
             case 1:{
                 int tamDescricao=strlen(pch);
-                eletronico[i].descricao=(char*)malloc(tamDescricao* sizeof(char));
-                strcpy(eletronico[i].descricao, pch);
+                //eletronico[i].descricao = (char *) malloc(tamDescricao * sizeof(char));
+                //strcpy(eletronico[i].descricao, pch);
+                printf("%s\n", pch);
                 break;}
             case 2:
                 eletronico[i].dimensEletro.altura=atoi(pch);
@@ -933,48 +920,49 @@ void LerEletro(){
                 eletronico[i].dimensEletro.largura=atoi(pch);
                 break;
             case 4:
-                eletronico[i].dimensEletro.altura=atoi(pch);
-                break;
-            case 5:
                 eletronico[i].dimensEletro.comprimento=atoi(pch);
                 break;
-            case 6:
-                eletronico[i].preco=atof(pch);
+            case 5:
+                eletronico[i].preco=atoi(pch);
                 break;
-            case 7:
+            case 6:
                 eletronico[i].estoque=atoi(pch);
                 break;
-            case 8:{
+            case 7:{
                 int tamCor=strlen(pch);
-                eletronico[i].cor=(char*)malloc(tamCor*sizeof(char));
+                eletronico[i].cor = (char*) malloc(tamCor * sizeof(char));
                 strcpy(eletronico[i].cor, pch);
                 break;}
             }
-           pch = strtok(NULL, ",");
+            pch = strtok(NULL, ",");
 			j++;
 		}
 		i++;
 	}
 	fclose(fp);
+	exit(0);
 }
+
 
 void LerVestuario(){
     FILE *fp;
-    char linha[70];
-    if((fp=fopen("vestuario.txt", "r"))==NULL){
-        wprintf("Erro ao abrir o arquivo %s\n", "vestuario.txt");
+    char linha[256];
+    if((fp=fopen("arquivos-de-entrada//vestuario.txt", "r"))==NULL){
+        printf("Erro ao abrir o arquivo %s\n", "arquivos-de-entrada//vestuario.txt");
         exit(1);
     }
-    while((fgets(linha,70,fp))!=NULL){
+    while((fgets(linha,256,fp))!=NULL){
         numItensVest++;
     }
+
     if((vestuario=(VEST *)malloc(numItensVest*sizeof(VEST)))==NULL){
-       wprintf("\nErro ao alocar memoria!");
+       printf("\nErro ao alocar memoria!");
        exit(1);
-       }
+     }
+
     int i=0;
     rewind(fp);
-    while((fgets(linha, 70 ,fp))!=NULL){
+    while((fgets(linha, 256, fp))!=NULL){
         char *pch;
         int j=0;
         pch = strtok(linha,",");
@@ -1006,6 +994,7 @@ void LerVestuario(){
                 strcpy(vestuario[i].genero, pch);
                 break;
             }
+            pch = strtok(NULL, ",");
             j++;
         }
         i++;
@@ -1042,6 +1031,7 @@ void MenuCancelar(int CodigoCliente){
 }
 */
 
+/*
 int MenuInserir(int NumeroCadastro, int quant, char cat){
     FILE *fp;
     if((fp=fopen("carrinho_usuario.sav", "r+b"))==NULL){
@@ -1077,10 +1067,43 @@ int MenuInserir(int NumeroCadastro, int quant, char cat){
     }
     return 0;
 }
+*/
 
-MenuCancelar(int CodigoCliente){
+void MenuCancelar(int CodigoCliente){
     ApagarCompra(CodigoCliente);
     //mesma coisa da troca usuario
+}
+
+void MenuExcluir(int CodigoCliente, int CodigoProduto){
+    FILE *fp;
+	CARRINHO temp;
+
+    if((fp = fopen("carrinho_usuario.sav", "r+b")) == NULL){
+			printw("\n O arquivo nao pode ser criado.");
+		    exit(1);
+	}
+
+	int i = 0, j = 0;
+	while((fread(&temp, sizeof(CARRINHO), 1, fp))!=0){
+		if(temp.CodigoProduto == CodigoProduto && temp.aberto == 1){
+			temp.aberto = 0;
+			fwrite(&temp, sizeof(CARRINHO), 1, fp);
+		}
+	}
+
+	i =0;
+
+	for(i; i < 20; i++){
+		if(carrinhoVestuario[i].CodigoProduto==CodigoProduto){
+		carrinhoVestuario[i].CodigoCliente = NULL;
+		}
+		if(carrinhoEletronico[i].CodigoProduto==CodigoProduto){
+        carrinhoEletronico[i].CodigoCliente = NULL;
+		}
+	}
+
+	fclose(fp);
+
 }
 
 /*
@@ -1208,36 +1231,3 @@ void MenuPesquisar(VEST ProdutosVestuario, ELETRO ProdutosEletro){
     }
 }
 */
-MenuExcluir(int CodigoCliente, int CodigoProduto){
-    FILE *fp;
-	CARRINHO temp;
-
-    if((fp = fopen("carrinho_usuario.sav", "r+b")) == NULL){
-			printw("\n O arquivo nao pode ser criado.");
-		    exit(1);
-	}
-
-	int i = 0, j = 0;
-	while((fread(&temp, sizeof(CARRINHO), 1, fp))!=0){
-		if(temp.CodigoCodigoProduto == CodigoProduto && temp.aberto == 1){
-			temp.aberto = 0;
-			fwrite(&temp, sizeof(CARRINHO), 1, fp);
-
-
-		}
-	}
-
-	i =0;
-
-	for(i; i < 20; i++){
-		if(carrinhoVestuario[i].CodigoProduto==CodigoProduto){
-		carrinhoVestuario[i].CodigoCliente = NULL;
-		}
-		if(carrinhoEletronico[i].CodigoProduto==CodigoProduto){
-        carrinhoEletronico[i].CodigoCliente = NULL;
-		}
-	}
-
-	fclose(fp);
-
-}

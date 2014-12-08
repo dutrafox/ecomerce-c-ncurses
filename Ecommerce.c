@@ -56,7 +56,7 @@ typedef struct Usuario{
 	int codigoUsuario;
 	char *nomeUsuario;
 	char *sobrenomeUsuario;
-	char categoria[8];
+	char categoriaUsuario[9];
 	struct Endereco endereco;
 } USUARIO;
 
@@ -65,7 +65,7 @@ typedef struct Carrinho{
     	int CodigoCliente;
     	int CodigoProduto;
     	int quantidade;
-        int aberto;
+	int aberto;
     	char categoria[10];
 } CARRINHO;
 
@@ -95,7 +95,7 @@ int carrinhoEletro(/*algum parametro que eu ainda nao pensei*/);
 void MenuAbrir(int NumeroCadastro);//abre um log já existente
 void MenuGerente(int opcao);//interface
 void MenuCliente(int opcao);//interface
-void MenuPesquisar(VEST ProdutosVestuario, ELETRO ProdutosEletro);//pesquisa item por tipo e nome
+void MenuPesquisar(int opcao, char /*parametro da pesquisa*/);//pesquisa item por tipo e nome
 void MenuRelatorios(/*parametros a definir*/);//emite relátorio de várias coisas
 void MenuExcluir(); //faltam parametros ainda para excluir produtos do carrinho
 void MenuVisualizar(); //listar o carrinho do cliente
@@ -218,9 +218,8 @@ void TelaLogin(){
 		destruirJanela(janelaCodigoUsuario);
 		clear();
 
-		if(strcmp(usuarios[codigoUsuario-1].categoria, "cliente")){
-			mvprintw(0,0, "%s", usuarios[codigoUsuario-1].categoria);
-			TelaCliente();
+		if(usuarios[codigoUsuario-1].categoriaUsuario[0] == 'c'){
+			TelaCliente(); 
 		}else{
 			TelaGerente();
 		}
@@ -311,7 +310,7 @@ void TelaCriarCadastro(){
 	scanw("%d", &cep);
 	usuarios[numUsuarios].endereco.cep = cep;
 	usuarios[numUsuarios].codigoUsuario = numUsuarios+1;
-	strcpy(usuarios[numUsuarios].categoria, "cliente");
+	strcpy(usuarios[numUsuarios].categoriaUsuario, "cliente");
 	numUsuarios++;
 
 	noecho();
@@ -690,22 +689,22 @@ void MenuAbrir(int NumeroCadastro){ //Não acabado
 //Funcao para ler os usuarios do arquivo em modo texto e gravar em um vetor de usuarios
 void lerUsuariosTexto(char arq[30]){
 	FILE *fp;
-	char linha[140];//Valor 140 escolhido por ser a soma do tamanho maximo de todos os dados do usuario
+	char linha[256];//Valor 140 escolhido por ser a soma do tamanho maximo de todos os dados do usuario
 	if((fp = fopen(arq, "r")) == NULL){
 		printf("Erro ao abrir o arquivo %s\n", arq);
 		exit(1);
 	}
-	while(fgets(linha,140,fp) != NULL) numUsuarios++;
+	while(fgets(linha,256,fp) != NULL) numUsuarios++;
 	if((usuarios = (USUARIO *) malloc(numUsuarios * sizeof(USUARIO))) == NULL){
 		printf("Erro ao alocar memoria\n");
 		exit(1);
 	}
 	int i = 0;
 	rewind(fp);
-	while(fgets(linha,140,fp) != NULL){
+	while(fgets(linha,256,fp) != NULL){
 		int j = 0;
 		char *pch;
-		pch = strtok(linha,",");
+		pch = strtok(linha,",\n");
 		while(pch != NULL){
 			switch(j){
 				case 0:
@@ -739,8 +738,9 @@ void lerUsuariosTexto(char arq[30]){
 				case 6:
 					usuarios[i].endereco.cep = atoi(pch);
 					break;
-				case 7:
-					strcpy(usuarios[i].categoria, pch);
+				case 7:;
+					strcpy(usuarios[i].categoriaUsuario, pch);
+					
 			}
 			pch = strtok(NULL, ",");
 			j++;
@@ -756,7 +756,7 @@ int salvarUsuarioTexto(char arq[30]){ //pronta
 		printf("Erro ao abrir o arquivo %s\n", arq);
 		exit(1);
 	}
-	fprintf(fp, "%d,%s,%s,%s,%s,%s,%d,%s\n", usuarios[numUsuarios-1].codigoUsuario, usuarios[numUsuarios-1].nomeUsuario, usuarios[numUsuarios-1].sobrenomeUsuario, usuarios[numUsuarios-1].endereco.logradouro, usuarios[numUsuarios-1].endereco.numero, usuarios[numUsuarios-1].endereco.complemento, usuarios[numUsuarios-1].endereco.cep, usuarios[numUsuarios-1].categoria);
+	fprintf(fp, "%d,%s,%s,%s,%s,%s,%d,%s\n", usuarios[numUsuarios-1].codigoUsuario, usuarios[numUsuarios-1].nomeUsuario, usuarios[numUsuarios-1].sobrenomeUsuario, usuarios[numUsuarios-1].endereco.logradouro, usuarios[numUsuarios-1].endereco.numero, usuarios[numUsuarios-1].endereco.complemento, usuarios[numUsuarios-1].endereco.cep, usuarios[numUsuarios-1].categoriaUsuario);
 	fclose(fp);
 	return 1;
 }
@@ -1076,5 +1076,3 @@ void MenuPesquisar(VEST ProdutosVestuario, ELETRO ProdutosEletro){
         break;
     }
 }
-
-

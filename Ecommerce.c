@@ -88,6 +88,7 @@ void LerVestuario();
 void MenuTrocaUsuario(JANELA *janela);
 void TelaCliente();
 void TelaGerente();
+int MenuInserir(int NumeroCadastro, int quant, char cat);
 
 //EM PRODUCAO
 int carrinhoVest(int /*numero do cadastro*/, int /*outro parametro*/ );
@@ -102,7 +103,6 @@ void MenuVisualizar(); //listar o carrinho do cliente
 void MenuSuspender();//apenas salvar o carrinho com fwrite
 void MenuFechar(); //salvar e fechar o carrinho
 void MenuCancelar(int CodigoCliente); //cancelar 1 item do carrinho
-void MenuInserir();//inserir com o codigo, um item no carrinho
 
 
 //Variavel globais
@@ -935,22 +935,40 @@ void MenuCancelar(int CodigoCliente){
 }
 */
 
-void MenuInserir(int NumeroCadastro){
-    int item;
-    int quant;
-    char cat;
-    printw("\nInforme a categoria do produto(vestuario/eletronico):\n");
-    scanw("%s", cat);
-    printw("Informe o código do produto:\n");
-    scanw("%d", &item);
-    printw("Informe a quantidade do produto:\n");
-    scanw("%d", &quant);
-    carrinhoEletronico[i].CodigoCliente= NumeroCadastro;
-    carrinhoEletronico[i].CodigoProduto= item;
-    carrinhoEletronico[i].quantidade=quant;
-    carrinhoEletronico[i].aberto=1;
-    carrinhoEletronico[i].categoria= cat;
+int MenuInserir(int NumeroCadastro, int quant, char cat){
+    FILE *fp;
+    if((fp=fopen("carrinho_usuario.sav", "r+b"))==NULL){
+        wprintf("Erro ao abrir o arquivo %s\n", "carrinho_usuario.sav");
+        exit(1);
 
+    if(cat==Vestuario){
+        while(carrinhoVestuario[i]!=NULL && i<20){
+        i++;
+        }
+        if(i==20){return 1;}
+            carrinhoVestuario[i].CodigoCliente= NumeroCadastro;
+            carrinhoVestuario[i].CodigoProduto= item;
+            carrinhoVestuario[i].quantidade=quant;
+            carrinhoVestuario[i].aberto=1;
+            carrinhoVestuario[i].categoria= cat;
+            fseek(fp, sizeof(CARRINHO), SEEK_END);
+            fwrite(carrinhoVestuario[i], sizeof(CARRINHO), 1, fp);
+        }
+        else{
+            while(carrinhoEletronico[i]!=NULL && i<20){
+            i++;
+        }
+            if(i==20){return 1;}
+            carrinhoEletronico[i].CodigoCliente= NumeroCadastro;
+            carrinhoEletronico[i].CodigoProduto= item;
+            carrinhoEletronico[i].quantidade=quant;
+            carrinhoEletronico[i].aberto=1;
+            carrinhoEletronico[i].categoria= cat;
+            fseek(fp, sizeof(CARRINHO), SEEK_END);
+            fwrite(carrinhoEletronico[i], sizeof(CARRINHO), 1, fp);
+        }
+    }
+    return 0;
 }
 
 void MenuPesquisar(VEST ProdutosVestuario, ELETRO ProdutosEletro){
@@ -1076,3 +1094,13 @@ void MenuPesquisar(VEST ProdutosVestuario, ELETRO ProdutosEletro){
         break;
     }
 }
+<<<<<<< HEAD
+
+MenuCancelar(int CodigoCliente){
+    ApagarCompra(CodigoCliente);
+    //mesma coisa da troca usuario
+    }
+
+
+=======
+>>>>>>> origin/master
